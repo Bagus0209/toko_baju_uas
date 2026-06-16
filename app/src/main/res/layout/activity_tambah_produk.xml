@@ -1,0 +1,45 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:fitsSystemWindows="true"
+    android:background="#FAFBFC">
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nama Baju"
+        android:layout_marginBottom="16dp">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etNamaBaju" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Harga"
+        android:layout_marginBottom="16dp">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etHarga" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Stok"
+        android:layout_marginBottom="32dp">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etStok" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSimpan"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="SIMPAN PRODUK"
+        app:cornerRadius="8dp"
+        app:backgroundTint="#0F172A"/>
+</LinearLayout>
