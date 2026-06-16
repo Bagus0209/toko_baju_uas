@@ -15,6 +15,13 @@
         android:theme="@style/Theme.Toko_baju_uas"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".UserActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".EditProdukActivity"
+            android:exported="false" />
+        <activity
             android:name=".TambahProdukActivity"
             android:exported="false" />
         <activity

@@ -12,7 +12,6 @@ import retrofit2.http.POST;
 
 public interface ApiInterface {
 
-    // Endpoint untuk proses Login
     @FormUrlEncoded
     @POST("login.php")
     Call<LoginResponse> login(
@@ -20,7 +19,6 @@ public interface ApiInterface {
             @Field("password") String password
     );
 
-    // Endpoint untuk Tambah Barang (Perhatikan tanda kurung yang lengkap)
     @FormUrlEncoded
     @POST("tambah_barang.php")
     Call<BaseResponse> tambahBarang(
@@ -29,7 +27,22 @@ public interface ApiInterface {
             @Field("stok") int stok
     );
 
-    // Endpoint untuk mengambil daftar semua baju
     @GET("get_barang.php")
     Call<BarangResponse> getBarang();
+
+    @FormUrlEncoded
+    @POST("hapus_barang.php")
+    Call<BaseResponse> hapusBarang(
+            @Field("id_barang") int idBarang
+    );
+
+    // INI BAGIAN UPDATE YANG BENAR
+    @FormUrlEncoded
+    @POST("update_barang.php")
+    Call<BaseResponse> updateBarang(
+            @Field("id_barang") int idBarang,
+            @Field("nama_barang") String nama,
+            @Field("harga") int harga,
+            @Field("stok") int stok
+    );
 }
