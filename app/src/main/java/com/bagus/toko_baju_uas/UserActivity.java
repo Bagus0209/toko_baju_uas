@@ -29,7 +29,7 @@ public class UserActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user);
+        super.setContentView(R.layout.activity_user);
 
         // Kenalkan RecyclerView
         rvBajuUser = findViewById(R.id.rvBajuUser);

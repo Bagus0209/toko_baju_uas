@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.BaseResponse;
+import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -16,54 +17,49 @@ import retrofit2.Response;
 
 public class EditProdukActivity extends AppCompatActivity {
 
-    private TextInputEditText etEditNamaBaju, etEditHarga, etEditStok;
-    private MaterialButton btnSimpanPerubahan;
+    private TextInputEditText etEditNamaBaju, etEditHarga, etEditStok, etEditGambar;
     private int idBarang;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_produk);
+        super.setContentView(R.layout.activity_edit_produk);
 
-        // 1. Inisialisasi Komponen UI
         etEditNamaBaju = findViewById(R.id.etEditNamaBaju);
         etEditHarga = findViewById(R.id.etEditHarga);
         etEditStok = findViewById(R.id.etEditStok);
-        btnSimpanPerubahan = findViewById(R.id.btnSimpanPerubahan);
+        etEditGambar = findViewById(R.id.etEditGambar);
+        MaterialButton btnSimpanPerubahan = findViewById(R.id.btnSimpanPerubahan);
 
-        // 2. Tangkap data lama yang dikirim dari Adapter
         if (getIntent().getExtras() != null) {
             idBarang = getIntent().getIntExtra("id_barang", 0);
-            String namaLama = getIntent().getStringExtra("nama_barang");
-            int hargaLama = getIntent().getIntExtra("harga", 0);
-            int stokLama = getIntent().getIntExtra("stok", 0);
-
-            // Tampilkan data lama ke dalam kolom input form
-            etEditNamaBaju.setText(namaLama);
-            etEditHarga.setText(String.valueOf(hargaLama));
-            etEditStok.setText(String.valueOf(stokLama));
+            etEditNamaBaju.setText(getIntent().getStringExtra("nama_barang"));
+            etEditHarga.setText(String.valueOf(getIntent().getIntExtra("harga", 0)));
+            etEditStok.setText(String.valueOf(getIntent().getIntExtra("stok", 0)));
+            etEditGambar.setText(getIntent().getStringExtra("gambar"));
         }
 
-        // 3. Logika Klik Tombol Simpan Perubahan
         btnSimpanPerubahan.setOnClickListener(v -> {
-            String namaBaru = etEditNamaBaju.getText().toString();
-            String hargaStr = etEditHarga.getText().toString();
-            String stokStr = etEditStok.getText().toString();
+            AnimationUtil.animateButtonClick(v);
+            String namaBaru = etEditNamaBaju.getText().toString().trim();
+            String hargaStr = etEditHarga.getText().toString().trim();
+            String stokStr = etEditStok.getText().toString().trim();
+            String gambarBaru = etEditGambar.getText().toString().trim();
 
             if (namaBaru.isEmpty() || hargaStr.isEmpty() || stokStr.isEmpty()) {
                 Toast.makeText(this, "Semua kolom tidak boleh kosong!", Toast.LENGTH_SHORT).show();
             } else {
                 int hargaBaru = Integer.parseInt(hargaStr);
                 int stokBaru = Integer.parseInt(stokStr);
+                if (gambarBaru.isEmpty()) gambarBaru = "default.jpg";
 
-                // Jalankan perintah update ke database lewat API
                 ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
-                api.updateBarang(idBarang, namaBaru, hargaBaru, stokBaru).enqueue(new Callback<BaseResponse>() {
+                api.updateBarang(idBarang, namaBaru, hargaBaru, stokBaru, gambarBaru).enqueue(new Callback<BaseResponse>() {
                     @Override
                     public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                         if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
                             Toast.makeText(EditProdukActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                            finish(); // Tutup halaman dan kembali ke dasbor
+                            finish();
                         } else {
                             Toast.makeText(EditProdukActivity.this, "Gagal memperbarui data produk", Toast.LENGTH_SHORT).show();
                         }

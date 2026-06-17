@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.bagus.toko_baju_uas.R;
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
@@ -90,8 +91,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                 break;
             case "gagal":
             case "dibatalkan":
-                holder.tvStatus.setBackgroundResource(R.drawable.bg_pill_gray);
-                holder.tvStatus.setTextColor(Color.parseColor("#EF4444")); // Red for failed
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_pill_status_cancelled);
+                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_cancelled));
                 holder.btnActionPrimary.setVisibility(View.GONE); // No actions for failed order
                 break;
         }
@@ -105,10 +106,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
         // Actions
         holder.btnActionSecondary.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
             Toast.makeText(context, "Membeli ulang: " + item.getProductName(), Toast.LENGTH_SHORT).show();
         });
 
         holder.btnActionPrimary.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
             Toast.makeText(context, holder.btnActionPrimary.getText() + " untuk " + item.getProductName(), Toast.LENGTH_SHORT).show();
         });
     }

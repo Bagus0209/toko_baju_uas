@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bagus.toko_baju_uas.adapter.HistoryAdapter;
 import com.bagus.toko_baju_uas.adapter.HistoryAdapter.HistoryItem;
+import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -29,7 +30,7 @@ public class PaymentHistoryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_payment_history);
+        super.setContentView(R.layout.activity_payment_history);
 
         btnBack = findViewById(R.id.btnBack);
         btnNotif = findViewById(R.id.btnNotif);
@@ -50,8 +51,14 @@ public class PaymentHistoryActivity extends AppCompatActivity {
         generateMockData();
 
         // Listeners
-        btnBack.setOnClickListener(v -> finish());
-        btnNotif.setOnClickListener(v -> Toast.makeText(this, "Tidak ada notifikasi baru", Toast.LENGTH_SHORT).show());
+        btnBack.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            finish();
+        });
+        btnNotif.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            Toast.makeText(this, "Tidak ada notifikasi baru", Toast.LENGTH_SHORT).show();
+        });
         
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> filterHistory());
 
@@ -60,10 +67,11 @@ public class PaymentHistoryActivity extends AppCompatActivity {
     }
 
     private void generateMockData() {
-        allHistory.add(new HistoryItem("16 Juni 2026", "Selesai", "Midnight Velvet Jacket", 850000, "http://localhost/api_tokobaju/images/jacket.jpg"));
-        allHistory.add(new HistoryItem("17 Juni 2026", "Berlangsung", "Classic Oxford Shirt", 450000, "http://localhost/api_tokobaju/images/shirt.jpg"));
-        allHistory.add(new HistoryItem("12 Mei 2026", "Gagal", "Vintage Denim Jacket", 750000, "http://localhost/api_tokobaju/images/denim.jpg"));
-        allHistory.add(new HistoryItem("05 Mei 2026", "Selesai", "Silk Elegance Dress", 1200000, "http://localhost/api_tokobaju/images/dress.jpg"));
+        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/api_tokobaju/images/";
+        allHistory.add(new HistoryItem("16 Juni 2026", "Selesai", "Midnight Velvet Jacket", 850000, baseUrl + "jacket.jpg"));
+        allHistory.add(new HistoryItem("17 Juni 2026", "Berlangsung", "Classic Oxford Shirt", 450000, baseUrl + "shirt.jpg"));
+        allHistory.add(new HistoryItem("12 Mei 2026", "Gagal", "Vintage Denim Jacket", 750000, baseUrl + "denim.jpg"));
+        allHistory.add(new HistoryItem("05 Mei 2026", "Selesai", "Silk Elegance Dress", 1200000, baseUrl + "dress.jpg"));
     }
 
     private void filterHistory() {

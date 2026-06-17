@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.bagus.toko_baju_uas.R;
 import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bumptech.glide.Glide;
@@ -57,6 +58,7 @@ public class BajuCustomerAdapter extends RecyclerView.Adapter<BajuCustomerAdapte
 
         // Add action button logic
         holder.btnAdd.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
             Toast.makeText(context, context.getString(R.string.buy_toast_format, baju.getNamaBarang()), Toast.LENGTH_SHORT).show();
         });
     }

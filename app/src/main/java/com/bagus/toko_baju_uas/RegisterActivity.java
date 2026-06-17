@@ -11,8 +11,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.BaseResponse;
+import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,69 +30,92 @@ public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText etName, etEmail, etPassword;
     private RadioGroup rgRole;
-    private MaterialButton btnSignUp;
-    private TextView tvSignIn;
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        super.setContentView(R.layout.activity_register);
 
-        // Kenalkan komponen dari XML ke Java
+        mAuth = FirebaseAuth.getInstance();
+        mFirestore = FirebaseFirestore.getInstance();
+
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         rgRole = findViewById(R.id.rgRole);
-        btnSignUp = findViewById(R.id.btnSignUp);
-        tvSignIn = findViewById(R.id.tvSignIn);
+        MaterialButton btnSignUp = findViewById(R.id.btnSignUp);
+        TextView tvSignIn = findViewById(R.id.tvSignIn);
 
         btnSignUp.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
             String name = etName.getText() != null ? etName.getText().toString().trim() : "";
             String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
             String password = etPassword.getText() != null ? etPassword.getText().toString().trim() : "";
 
-            // Cek apakah kolom kosong
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(RegisterActivity.this, "Semua kolom wajib diisi!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Tentukan role berdasarkan RadioButton terpilih
-            String role = "customer"; // Default
+            String selectedRole = "pengunjung";
             int selectedRoleId = rgRole.getCheckedRadioButtonId();
             if (selectedRoleId == R.id.rbAdmin) {
-                role = "admin";
-            } else if (selectedRoleId == R.id.rbPengunjung) {
-                role = "customer"; // Maps to customer in DB
+                selectedRole = "admin";
             }
 
-            prosesRegistrasi(name, email, password, role);
+            prosesRegistrasiHybrid(name, email, password, selectedRole);
         });
 
-        tvSignIn.setOnClickListener(v -> finish());
+        tvSignIn.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            finish();
+        });
     }
 
-    private void prosesRegistrasi(String name, String email, String password, String role) {
+    private void prosesRegistrasiHybrid(String name, String email, String password, String role) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            saveUserToFirestore(user.getUid(), name, email, role);
+                            registerToMySQL(name, email, password, role);
+                        }
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "Pendaftaran Gagal: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void registerToMySQL(String name, String email, String password, String role) {
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         api.register(name, email, password, role).enqueue(new Callback<BaseResponse>() {
             @Override
             public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().isStatus()) {
-                        Toast.makeText(RegisterActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                        finish(); // Kembali ke halaman login
-                    } else {
-                        Toast.makeText(RegisterActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(RegisterActivity.this, "Terjadi kesalahan pada respon server.", Toast.LENGTH_SHORT).show();
-                }
+                // MySQL persistence (Success or fail doesn't block user experience)
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                Toast.makeText(RegisterActivity.this, "Koneksi gagal: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // Handled via Firebase session
             }
         });
+    }
+
+    private void saveUserToFirestore(String uid, String name, String email, String role) {
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("nama", name);
+        userMap.put("email", email);
+        userMap.put("role", role);
+
+        mFirestore.collection("users").document(uid).set(userMap)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(RegisterActivity.this, "Registrasi Berhasil!", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> Toast.makeText(RegisterActivity.this, "Firestore Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

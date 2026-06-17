@@ -15,6 +15,7 @@ import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bagus.toko_baju_uas.model.BarangResponse;
 import com.google.android.material.button.MaterialButton;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.core.view.GravityCompat;
 import com.google.android.material.navigation.NavigationView;
 import android.widget.ImageButton;
 
@@ -25,6 +26,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import android.content.Intent;
+
+import com.bagus.toko_baju_uas.util.AnimationUtil;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class AdminActivity extends AppCompatActivity {
 
@@ -38,7 +42,7 @@ public class AdminActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin);
+        super.setContentView(R.layout.activity_admin);
 
         // 1. Kenalkan komponen dari XML
         rvBajuAdmin = findViewById(R.id.rvBajuAdmin);
@@ -56,6 +60,7 @@ public class AdminActivity extends AppCompatActivity {
         btnTambahProduk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AnimationUtil.animateButtonClick(v);
                 Intent intent = new Intent(AdminActivity.this, TambahProdukActivity.class);
                 startActivity(intent);
             }
@@ -64,9 +69,28 @@ public class AdminActivity extends AppCompatActivity {
         btnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AnimationUtil.animateButtonClick(v);
                 drawerLayout.openDrawer(androidx.core.view.GravityCompat.START);
             }
         });
+
+        NavigationView navigationView = findViewById(R.id.navigationView);
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_logout) { // Assuming nav_logout exists in drawer_menu
+                logout();
+            }
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        });
+    }
+
+    private void logout() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(AdminActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void fetchDataBarang() {

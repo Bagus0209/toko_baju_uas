@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.BaseResponse;
+import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -16,36 +17,35 @@ import retrofit2.Response;
 
 public class TambahProdukActivity extends AppCompatActivity {
 
-    // 1. Deklarasi variabel
-    private TextInputEditText etNamaBaju, etHarga, etStok, etKategori;
-    private MaterialButton btnSimpan;
+    private TextInputEditText etNamaBaju, etHarga, etStok, etGambar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tambah_produk); // PASTIKAN nama file XML kamu benar
+        super.setContentView(R.layout.activity_tambah_produk);
 
-        // 2. Inisialisasi (Menghubungkan variabel dengan ID di XML)
         etNamaBaju = findViewById(R.id.etNamaBaju);
-        etKategori = findViewById(R.id.etKategori);
         etHarga = findViewById(R.id.etHarga);
         etStok = findViewById(R.id.etStok);
-        btnSimpan = findViewById(R.id.btnSimpan);
+        etGambar = findViewById(R.id.etGambar);
+        MaterialButton btnSimpan = findViewById(R.id.btnSimpan);
 
-        // 3. Logika Simpan
         btnSimpan.setOnClickListener(v -> {
-            String nama = etNamaBaju.getText().toString();
-            String hargaStr = etHarga.getText().toString();
-            String stokStr = etStok.getText().toString();
+            AnimationUtil.animateButtonClick(v);
+            String nama = etNamaBaju.getText().toString().trim();
+            String hargaStr = etHarga.getText().toString().trim();
+            String stokStr = etStok.getText().toString().trim();
+            String gambar = etGambar.getText().toString().trim();
 
             if (nama.isEmpty() || hargaStr.isEmpty() || stokStr.isEmpty()) {
-                Toast.makeText(this, "Semua kolom wajib diisi!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Nama, Harga, dan Stok wajib diisi!", Toast.LENGTH_SHORT).show();
             } else {
                 int harga = Integer.parseInt(hargaStr);
                 int stok = Integer.parseInt(stokStr);
+                if (gambar.isEmpty()) gambar = "default.jpg";
 
                 ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
-                api.tambahBarang(nama, harga, stok).enqueue(new Callback<BaseResponse>() {
+                api.tambahBarang(nama, harga, stok, gambar).enqueue(new Callback<BaseResponse>() {
                     @Override
                     public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                         if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {

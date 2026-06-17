@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.bagus.toko_baju_uas.EditProdukActivity;
 import com.bagus.toko_baju_uas.R;
 import com.bagus.toko_baju_uas.api.ApiClient;
@@ -53,21 +54,16 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BajuModel baju = listBaju.get(position);
 
-        holder.tvIdBaju.setText(context.getString(R.string.product_id_format, baju.getIdBarang()));
+        holder.tvIdBaju.setText("#PRD-" + baju.getIdBarang());
         holder.tvNamaBaju.setText(baju.getNamaBarang());
-        holder.tvStokBaju.setText(String.valueOf(baju.getStok()));
+        holder.tvStokBaju.setText("Stok: " + baju.getStok());
 
         Locale localeID = new Locale("in", "ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
         holder.tvHargaBaju.setText(formatRupiah.format(baju.getHarga()));
 
-        if (baju.getStok() < 10) {
-            holder.cvIndikatorStok.setCardBackgroundColor(Color.parseColor("#EF4444"));
-        } else if (baju.getStok() < 30) {
-            holder.cvIndikatorStok.setCardBackgroundColor(Color.parseColor("#F59E0B"));
-        } else {
-            holder.cvIndikatorStok.setCardBackgroundColor(Color.parseColor("#10B981"));
-        }
+        // Hapus indikator stok yang lama karena desain sudah berubah
+        // if (baju.getStok() < 10) { ... }
 
         Glide.with(context)
                 .load(baju.getGambar())
@@ -77,16 +73,19 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
 
         // TOMBOL EDIT (Kirim data ke EditProdukActivity)
         holder.btnEdit.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
             Intent intent = new Intent(context, EditProdukActivity.class);
             intent.putExtra("id_barang", baju.getIdBarang());
             intent.putExtra("nama_barang", baju.getNamaBarang());
             intent.putExtra("harga", baju.getHarga());
             intent.putExtra("stok", baju.getStok());
+            intent.putExtra("gambar", baju.getGambarRaw()); // Gunakan nama file asli
             context.startActivity(intent);
         });
 
         // TOMBOL HAPUS
         holder.btnHapus.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
             int currentPosition = holder.getBindingAdapterPosition();
             if (currentPosition == RecyclerView.NO_POSITION) return;
 
@@ -128,7 +127,6 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvIdBaju, tvNamaBaju, tvHargaBaju, tvStokBaju;
         ImageView ivGambarBaju;
-        CardView cvIndikatorStok;
         ImageButton btnEdit, btnHapus;
 
         public ViewHolder(@NonNull View itemView) {
@@ -138,7 +136,6 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
             tvHargaBaju = itemView.findViewById(R.id.tvHargaBaju);
             tvStokBaju = itemView.findViewById(R.id.tvStokBaju);
             ivGambarBaju = itemView.findViewById(R.id.ivGambarBaju);
-            cvIndikatorStok = itemView.findViewById(R.id.cvIndikatorStok);
             btnEdit = itemView.findViewById(R.id.btnEdit);
             btnHapus = itemView.findViewById(R.id.btnHapus);
         }

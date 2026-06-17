@@ -72,7 +72,7 @@
                 android:checked="true"
                 android:text="Semua"
                 android:textColor="@color/white"
-                app:chipBackgroundColor="@color/luxe_black"
+                app:chipBackgroundColor="@color/luxe_gold"
                 app:chipCornerRadius="24dp"
                 app:chipMinHeight="36dp"
                 app:chipStrokeWidth="0dp" />

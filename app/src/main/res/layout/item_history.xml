@@ -145,7 +145,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="12sp"
-                app:backgroundTint="@color/luxe_black"
+                app:backgroundTint="@color/luxe_gold"
                 app:cornerRadius="10dp" />
         </LinearLayout>
     </LinearLayout>

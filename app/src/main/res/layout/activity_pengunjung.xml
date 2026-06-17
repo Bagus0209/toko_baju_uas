@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/luxe_bg">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -32,7 +32,7 @@
                     android:layout_height="wrap_content"
                     android:text="Hello,\nCustomer"
                     android:textColor="@color/luxe_black"
-                    android:textSize="32sp"
+                    android:textSize="36sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -41,7 +41,7 @@
                     android:layout_marginTop="8dp"
                     android:text="Discover the latest arrivals in luxury fashion"
                     android:textColor="@color/luxe_text_secondary"
-                    android:textSize="14sp" />
+                    android:textSize="16sp" />
             </LinearLayout>
 
             <!-- Search Bar -->
@@ -94,7 +94,7 @@
                         android:checked="true"
                         android:text="All"
                         android:textColor="@color/white"
-                        app:chipBackgroundColor="@color/luxe_black"
+                        app:chipBackgroundColor="@color/luxe_gold"
                         app:chipCornerRadius="24dp"
                         app:chipMinHeight="40dp"
                         app:chipStrokeWidth="0dp" />

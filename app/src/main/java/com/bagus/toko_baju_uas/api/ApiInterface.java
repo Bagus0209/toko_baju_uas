@@ -15,7 +15,7 @@ public interface ApiInterface {
     @FormUrlEncoded
     @POST("login.php")
     Call<LoginResponse> login(
-            @Field("username") String username,
+            @Field("email") String email,
             @Field("password") String password
     );
 
@@ -33,7 +33,8 @@ public interface ApiInterface {
     Call<BaseResponse> tambahBarang(
             @Field("nama_barang") String nama,
             @Field("harga") int harga,
-            @Field("stok") int stok
+            @Field("stok") int stok,
+            @Field("gambar") String gambar
     );
 
     @GET("get_barang.php")
@@ -45,13 +46,13 @@ public interface ApiInterface {
             @Field("id_barang") int idBarang
     );
 
-    // INI BAGIAN UPDATE YANG BENAR
     @FormUrlEncoded
     @POST("update_barang.php")
     Call<BaseResponse> updateBarang(
             @Field("id_barang") int idBarang,
             @Field("nama_barang") String nama,
             @Field("harga") int harga,
-            @Field("stok") int stok
+            @Field("stok") int stok,
+            @Field("gambar") String gambar
     );
 }

@@ -2,16 +2,32 @@ package com.bagus.toko_baju_uas;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.LoginResponse;
+import com.bagus.toko_baju_uas.util.AnimationUtil;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -19,94 +35,169 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int RC_SIGN_IN = 9001;
     private TextInputEditText etEmail, etPassword;
-    private MaterialButton btnSignIn;
-    private TextView tvSignUp;
+
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+    private FirebaseFirestore mFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        super.setContentView(R.layout.activity_main);
 
-        // Mengenalkan komponen dari XML ke Java
+        mAuth = FirebaseAuth.getInstance();
+        mFirestore = FirebaseFirestore.getInstance();
+
+        // Mengambil Web Client ID secara dinamis atau fallback ke ID manual dari google-services.json
+        String webClientId = "610252703058-ml0jita58ja9lp5dtu5o4b7hhb4aicvi.apps.googleusercontent.com";
+        try {
+            int resId = getResources().getIdentifier("default_web_client_id", "string", getPackageName());
+            if (resId != 0) {
+                webClientId = getString(resId);
+            }
+        } catch (Exception ignored) {}
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(webClientId) 
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-        btnSignIn = findViewById(R.id.btnSignIn);
-        tvSignUp = findViewById(R.id.tvSignUp);
+        MaterialButton btnSignIn = findViewById(R.id.btnSignIn);
+        MaterialButton btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn);
+        TextView tvSignUp = findViewById(R.id.tvSignUp);
 
-        // Menuju halaman registrasi ketika teks diklik
-        tvSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-                startActivity(intent);
+        tvSignUp.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
+
+        btnSignIn.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
+            String password = etPassword.getText() != null ? etPassword.getText().toString().trim() : "";
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Email dan Password tidak boleh kosong!", Toast.LENGTH_SHORT).show();
+            } else {
+                prosesLoginHybrid(email, password);
             }
         });
 
-        // Memberikan perintah saat tombol ditekan
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Mengambil teks dan memastikan tidak null
-                String email = etEmail.getText() != null ? etEmail.getText().toString() : "";
-                String password = etPassword.getText() != null ? etPassword.getText().toString() : "";
+        btnGoogleSignIn.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            signInWithGoogle();
+        });
+    }
 
-                // Cek apakah kolom kosong
-                if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Email dan Password tidak boleh kosong!", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Jika terisi, jalankan proses login ke server
-                    prosesLogin(email, password);
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                if (account != null) {
+                    firebaseAuthWithGoogle(account.getIdToken());
                 }
+            } catch (ApiException e) {
+                Toast.makeText(this, "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        checkUserRoleFirestore(user);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Firebase Authentication Failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void prosesLoginHybrid(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        authMySQL(email, password);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Login Gagal: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void authMySQL(String email, String password) {
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.login(email, password).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
+                    redirectToDashboard(response.body().getData().getRole());
+                } else {
+                    checkUserRoleFirestore(mAuth.getCurrentUser());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                checkUserRoleFirestore(mAuth.getCurrentUser());
             }
         });
     }
 
-    private void prosesLogin(String email, String password) {
-        // Memanggil interface API
-        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
-        Call<LoginResponse> call = apiInterface.login(email, password);
-
-        // Mengeksekusi panggilan ke server
-        call.enqueue(new Callback<LoginResponse>() {
-            @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-
-                    // Mengambil status dari JSON balasan
-                    boolean status = response.body().isStatus();
-                    String message = response.body().getMessage();
-
-                    if (status) {
-                        // Jika login berhasil, cek role-nya
-                        String role = response.body().getData().getRole();
-                        Toast.makeText(MainActivity.this, "Selamat datang, " + role, Toast.LENGTH_SHORT).show();
-
-                        // Logika pindah halaman berdasarkan Role
-                        if (role.equals("admin")) {
-                            Intent intent = new Intent(MainActivity.this, AdminActivity.class);
-                            startActivity(intent);
-                            finish(); // Menutup halaman login agar tidak bisa di-back
-                        } else if (role.equals("pengunjung")) {
-                            Intent intent = new Intent(MainActivity.this, PengunjungActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-
+    private void checkUserRoleFirestore(FirebaseUser user) {
+        if (user == null) return;
+        mFirestore.collection("users").document(user.getUid()).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        redirectToDashboard(doc.getString("role"));
                     } else {
-                        // Jika login gagal (username/password salah)
-                        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                        saveNewUserFirestore(user);
                     }
-                } else {
-                    Toast.makeText(MainActivity.this, "Terjadi kesalahan pada respon server.", Toast.LENGTH_SHORT).show();
-                }
-            } // Nah, kurung kurawal ini yang sebelumnya terhapus!
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Session error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
 
-            @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
-                // Jika koneksi internet mati atau server XAMPP mati
-                Toast.makeText(MainActivity.this, "Koneksi ke server gagal: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void saveNewUserFirestore(FirebaseUser user) {
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("nama", user.getDisplayName());
+        userData.put("email", user.getEmail());
+        userData.put("role", "pengunjung");
+
+        mFirestore.collection("users").document(user.getUid()).set(userData)
+                .addOnSuccessListener(aVoid -> redirectToDashboard("pengunjung"));
+    }
+
+    private void redirectToDashboard(String role) {
+        String finalRole = (role != null) ? role.toLowerCase() : "pengunjung";
+        
+        Intent intent;
+        if (Objects.equals(finalRole, "admin")) {
+            intent = new Intent(this, AdminActivity.class);
+        } else {
+            intent = new Intent(this, PengunjungActivity.class);
+        }
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mAuth.getCurrentUser() != null) checkUserRoleFirestore(mAuth.getCurrentUser());
     }
 }

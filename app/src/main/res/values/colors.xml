@@ -1,29 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="black">#111827</color>
+    <color name="white">#FFFFFF</color>
 
-    <!-- LuxeThreads Palette (Figma) -->
-    <color name="luxe_black">#0A0A0A</color>
-    <color name="luxe_white">#FAFAFA</color>
-    <color name="luxe_gray">#F5F5F5</color>
-    <color name="luxe_orange">#D4A574</color>
-    <color name="luxe_bg">#F7F9FB</color>
-    <color name="luxe_card_bg">#FFFFFF</color>
-    <color name="luxe_border">#E8E8E8</color>
-    <color name="luxe_text_secondary">#757575</color>
-    <color name="luxe_input_bg">#F8F8F8</color>
-    <color name="luxe_accent_blue">#3B82F6</color>
+    <!-- LuxeThreads Premium Palette -->
+    <color name="colorPrimary">#111827</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorSecondary">#B45309</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
 
-    <!-- Status Colors -->
-    <color name="status_paid">#4CAF50</color>
-    <color name="status_paid_bg">#E8F5E9</color>
-    <color name="status_pending">#FFC107</color>
-    <color name="status_pending_bg">#FFF8E1</color>
-    <color name="status_shipped">#2196F3</color>
-    <color name="status_shipped_bg">#E3F2FD</color>
-    <color name="status_cancelled">#F44336</color>
-    <color name="status_cancelled_bg">#FFEBEE</color>
-    <color name="status_completed">#4CAF50</color>
-    <color name="status_completed_bg">#E8F5E9</color>
+    <color name="luxe_black">#111827</color>
+    <color name="luxe_white">#FFFFFF</color>
+    <color name="luxe_gray_light">#F9FAFB</color>
+    <color name="luxe_gray_medium">#E5E7EB</color>
+    <color name="luxe_gray_dark">#6B7280</color>
+    <color name="luxe_gray">#F3F4F6</color>
+    <color name="luxe_gold">#B45309</color>
+    <color name="luxe_gold_light">#FDE68A</color>
+
+    <!-- Legacy compatibility -->
+    <color name="luxe_orange">#B45309</color>
+    <color name="luxe_bg">#F9FAFB</color>
+    <color name="luxe_border">#E5E7EB</color>
+    <color name="luxe_text_secondary">#6B7280</color>
+    <color name="luxe_input_bg">#FFFFFF</color>
+
+    <!-- Status Colors (Modern Tones) -->
+    <color name="status_completed">#059669</color>
+    <color name="status_completed_bg">#D1FAE5</color>
+    <color name="status_pending">#D97706</color>
+    <color name="status_pending_bg">#FEF3C7</color>
+    <color name="status_cancelled">#DC2626</color>
+    <color name="status_cancelled_bg">#FEE2E2</color>
+    <color name="status_shipped">#2563EB</color>
+    <color name="status_shipped_bg">#DBEAFE</color>
+    <color name="status_paid">#059669</color>
+    <color name="status_paid_bg">#D1FAE5</color>
 </resources>

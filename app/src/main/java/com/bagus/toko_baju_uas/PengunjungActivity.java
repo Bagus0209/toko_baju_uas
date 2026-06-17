@@ -19,6 +19,7 @@ import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bagus.toko_baju_uas.model.BarangResponse;
+import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -35,17 +36,15 @@ public class PengunjungActivity extends AppCompatActivity {
 
     private TextInputEditText etSearch;
     private ChipGroup chipGroup;
-    private RecyclerView rvProducts;
-    
     private BajuCustomerAdapter adapter;
     private List<BajuModel> allProducts = new ArrayList<>();
-    private List<BajuModel> filteredProducts = new ArrayList<>();
+    private final List<BajuModel> filteredProducts = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_pengunjung);
+        super.setContentView(R.layout.activity_pengunjung);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -53,38 +52,34 @@ public class PengunjungActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize UI Elements
         etSearch = findViewById(R.id.etSearch);
         chipGroup = findViewById(R.id.chipGroup);
-        rvProducts = findViewById(R.id.rvProducts);
+        RecyclerView rvProducts = findViewById(R.id.rvProducts);
 
-        // Setup RecyclerView Adapter
         adapter = new BajuCustomerAdapter(this, filteredProducts);
         rvProducts.setAdapter(adapter);
 
-        // Setup Bottom Navigation View
         BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
         bottomNavigation.setSelectedItemId(R.id.nav_shop);
 
         bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_history) {
-                Intent intent = new Intent(this, PaymentHistoryActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, PaymentHistoryActivity.class));
                 return true;
             } else if (itemId == R.id.nav_shop) {
                 return true;
-            } else if (itemId == R.id.nav_search || itemId == R.id.nav_bag || itemId == R.id.nav_profile) {
-                Toast.makeText(this, item.getTitle() + " (Fitur segera hadir!)", Toast.LENGTH_SHORT).show();
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(this, AccountActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_bag) {
+                startActivity(new Intent(this, CartActivity.class));
                 return true;
             }
             return false;
         });
 
-        // Fetch Data from Server
         loadProducts();
-
-        // Register Filter and Search Listeners
         setupListeners();
     }
 
@@ -95,9 +90,7 @@ public class PengunjungActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<BarangResponse> call, @NonNull Response<BarangResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
                     allProducts = response.body().getData();
-                    filteredProducts.clear();
-                    filteredProducts.addAll(allProducts);
-                    adapter.notifyDataSetChanged();
+                    filterProducts();
                 } else {
                     Toast.makeText(PengunjungActivity.this, "Gagal mengambil data produk", Toast.LENGTH_SHORT).show();
                 }
@@ -111,52 +104,35 @@ public class PengunjungActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        // Real-time search watcher
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterProducts();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { filterProducts(); }
+            @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Chip selection changes
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> filterProducts());
     }
 
     private void filterProducts() {
         String query = etSearch.getText() != null ? etSearch.getText().toString().toLowerCase().trim() : "";
-        
         int checkedChipId = chipGroup.getCheckedChipId();
         String category = "all";
-        Chip selectedChip = chipGroup.findViewById(checkedChipId);
+        Chip selectedChip = findViewById(checkedChipId);
         if (selectedChip != null) {
             category = selectedChip.getText().toString().toLowerCase();
         }
 
         filteredProducts.clear();
         for (BajuModel product : allProducts) {
-            boolean matchesSearch = product.getNamaBarang().toLowerCase().contains(query);
-            boolean matchesCategory = true;
+            String name = product.getNamaBarang().toLowerCase();
+            boolean matchesSearch = name.contains(query);
+            boolean matchesCategory = category.equals("all");
 
-            if (!category.equals("all")) {
-                String productName = product.getNamaBarang().toLowerCase();
-                if (category.equals("jackets")) {
-                    matchesCategory = productName.contains("jacket") || productName.contains("jaket");
-                } else if (category.equals("shirts")) {
-                    matchesCategory = productName.contains("shirt") || productName.contains("kemeja") || productName.contains("kaos") || productName.contains("t-shirt");
-                } else if (category.equals("pants")) {
-                    matchesCategory = productName.contains("celana") || productName.contains("pant") || productName.contains("trouser");
-                } else if (category.equals("dresses")) {
-                    matchesCategory = productName.contains("dress") || productName.contains("gaun") || productName.contains("rok");
-                } else {
-                    matchesCategory = false;
-                }
+            if (!matchesCategory) {
+                if (category.contains("jacket") && (name.contains("jacket") || name.contains("jaket"))) matchesCategory = true;
+                else if (category.contains("shirt") && (name.contains("shirt") || name.contains("kemeja") || name.contains("kaos"))) matchesCategory = true;
+                else if (category.contains("pant") && (name.contains("pant") || name.contains("celana") || name.contains("trouser"))) matchesCategory = true;
+                else if (category.contains("dress") && (name.contains("dress") || name.contains("gaun") || name.contains("rok"))) matchesCategory = true;
             }
 
             if (matchesSearch && matchesCategory) {
