@@ -1,29 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
-    android:fitsSystemWindows="true"
-    android:background="#FAFBFC">
+    android:background="@color/luxe_white">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tambah Produk Baru"
+        android:textColor="@color/luxe_black"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nama Baju"
+        android:hint="Nama Produk"
+        app:boxStrokeColor="@color/luxe_black"
+        app:hintTextColor="@color/luxe_black"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusBottomEnd="8dp"
         android:layout_marginBottom="16dp">
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etNamaBaju" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etNamaBaju"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/luxe_black"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Harga"
+        android:hint="Kategori"
+        app:boxStrokeColor="@color/luxe_black"
+        app:hintTextColor="@color/luxe_black"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusBottomEnd="8dp"
         android:layout_marginBottom="16dp">
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etHarga" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etKategori"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/luxe_black"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Harga (Rp)"
+        app:boxStrokeColor="@color/luxe_black"
+        app:hintTextColor="@color/luxe_black"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusBottomEnd="8dp"
+        android:layout_marginBottom="16dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etHarga"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:textColor="@color/luxe_black"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -31,8 +79,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Stok"
+        app:boxStrokeColor="@color/luxe_black"
+        app:hintTextColor="@color/luxe_black"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusBottomEnd="8dp"
         android:layout_marginBottom="32dp">
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etStok" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etStok"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:textColor="@color/luxe_black"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -40,6 +99,9 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:text="SIMPAN PRODUK"
+        android:textStyle="bold"
+        android:textAllCaps="true"
         app:cornerRadius="8dp"
-        app:backgroundTint="#0F172A"/>
+        app:backgroundTint="@color/luxe_black"
+        android:textColor="@color/white"/>
 </LinearLayout>

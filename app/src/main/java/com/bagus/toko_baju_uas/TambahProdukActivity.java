@@ -17,7 +17,7 @@ import retrofit2.Response;
 public class TambahProdukActivity extends AppCompatActivity {
 
     // 1. Deklarasi variabel
-    private TextInputEditText etNamaBaju, etHarga, etStok;
+    private TextInputEditText etNamaBaju, etHarga, etStok, etKategori;
     private MaterialButton btnSimpan;
 
     @Override
@@ -27,6 +27,7 @@ public class TambahProdukActivity extends AppCompatActivity {
 
         // 2. Inisialisasi (Menghubungkan variabel dengan ID di XML)
         etNamaBaju = findViewById(R.id.etNamaBaju);
+        etKategori = findViewById(R.id.etKategori);
         etHarga = findViewById(R.id.etHarga);
         etStok = findViewById(R.id.etStok);
         btnSimpan = findViewById(R.id.btnSimpan);

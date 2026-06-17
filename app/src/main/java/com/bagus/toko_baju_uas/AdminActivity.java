@@ -13,7 +13,10 @@ import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bagus.toko_baju_uas.model.BarangResponse;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.button.MaterialButton;
+import androidx.drawerlayout.widget.DrawerLayout;
+import com.google.android.material.navigation.NavigationView;
+import android.widget.ImageButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,9 @@ import android.content.Intent;
 public class AdminActivity extends AppCompatActivity {
 
     private RecyclerView rvBajuAdmin;
-    private ExtendedFloatingActionButton fabTambah;
+    private MaterialButton btnTambahProduk;
+    private ImageButton btnMenu;
+    private DrawerLayout drawerLayout;
     private BajuAdminAdapter adapter;
     private List<BajuModel> listBaju = new ArrayList<>();
 
@@ -37,7 +42,9 @@ public class AdminActivity extends AppCompatActivity {
 
         // 1. Kenalkan komponen dari XML
         rvBajuAdmin = findViewById(R.id.rvBajuAdmin);
-        fabTambah = findViewById(R.id.fabTambah);
+        btnTambahProduk = findViewById(R.id.btnTambahProduk);
+        btnMenu = findViewById(R.id.btnMenu);
+        drawerLayout = findViewById(R.id.drawerLayout);
 
         // 2. Atur bentuk daftar menjadi vertikal (atas ke bawah)
         rvBajuAdmin.setLayoutManager(new LinearLayoutManager(this));
@@ -45,12 +52,19 @@ public class AdminActivity extends AppCompatActivity {
         // 3. Panggil data dari server (XAMPP)
         fetchDataBarang();
 
-        // 4. Perintah untuk tombol Tambah Produk (Nanti kita buat halamannya)
-        fabTambah.setOnClickListener(new View.OnClickListener() {
+        // 4. Perintah untuk tombol Tambah Produk
+        btnTambahProduk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AdminActivity.this, TambahProdukActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(androidx.core.view.GravityCompat.START);
             }
         });
     }

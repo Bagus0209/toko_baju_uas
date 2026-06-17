@@ -22,6 +22,7 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
+@SuppressWarnings("deprecation")
 public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.ViewHolder> {
 
     private Context context;

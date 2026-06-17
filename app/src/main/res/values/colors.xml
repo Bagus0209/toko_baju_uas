@@ -2,4 +2,22 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- LuxeThreads Palette -->
+    <color name="luxe_black">#0A0A0A</color>
+    <color name="luxe_white">#FAFAFA</color>
+    <color name="luxe_gray">#F5F5F5</color>
+    <color name="luxe_orange">#D85A30</color>
+
+    <!-- Status Colors -->
+    <color name="status_paid">#4CAF50</color>
+    <color name="status_paid_bg">#E8F5E9</color>
+    <color name="status_pending">#FFC107</color>
+    <color name="status_pending_bg">#FFF8E1</color>
+    <color name="status_shipped">#2196F3</color>
+    <color name="status_shipped_bg">#E3F2FD</color>
+    <color name="status_cancelled">#F44336</color>
+    <color name="status_cancelled_bg">#FFEBEE</color>
+    <color name="status_completed">#4CAF50</color>
+    <color name="status_completed_bg">#E8F5E9</color>
 </resources>

@@ -18,8 +18,8 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextInputEditText etUsername, etPassword;
-    private MaterialButton btnLogin;
+    private TextInputEditText etEmail, etPassword;
+    private MaterialButton btnSignIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,33 +27,33 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Mengenalkan komponen dari XML ke Java
-        etUsername = findViewById(R.id.etUsername);
+        etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
+        btnSignIn = findViewById(R.id.btnSignIn);
 
         // Memberikan perintah saat tombol ditekan
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Mengambil teks dan memastikan tidak null
-                String username = etUsername.getText() != null ? etUsername.getText().toString() : "";
+                String email = etEmail.getText() != null ? etEmail.getText().toString() : "";
                 String password = etPassword.getText() != null ? etPassword.getText().toString() : "";
 
                 // Cek apakah kolom kosong
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Username dan Password tidak boleh kosong!", Toast.LENGTH_SHORT).show();
+                if (email.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Email dan Password tidak boleh kosong!", Toast.LENGTH_SHORT).show();
                 } else {
                     // Jika terisi, jalankan proses login ke server
-                    prosesLogin(username, password);
+                    prosesLogin(email, password);
                 }
             }
         });
     }
 
-    private void prosesLogin(String username, String password) {
+    private void prosesLogin(String email, String password) {
         // Memanggil interface API
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
-        Call<LoginResponse> call = apiInterface.login(username, password);
+        Call<LoginResponse> call = apiInterface.login(email, password);
 
         // Mengeksekusi panggilan ke server
         call.enqueue(new Callback<LoginResponse>() {
