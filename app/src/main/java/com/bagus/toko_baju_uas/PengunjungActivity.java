@@ -52,34 +52,39 @@ public class PengunjungActivity extends AppCompatActivity {
             return insets;
         });
 
+        // UI Initialization
         etSearch = findViewById(R.id.etSearch);
         chipGroup = findViewById(R.id.chipGroup);
         RecyclerView rvProducts = findViewById(R.id.rvProducts);
         com.google.android.material.floatingactionbutton.FloatingActionButton fabBag = findViewById(R.id.fabBag);
+        BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
 
+        // Adapter Setup
         adapter = new BajuCustomerAdapter(this, filteredProducts);
         rvProducts.setAdapter(adapter);
 
-        fabBag.setOnClickListener(v -> {
-            AnimationUtil.animateButtonClick(v);
-            startActivity(new Intent(this, CartActivity.class));
-        });
+        // FAB Cart
+        if (fabBag != null) {
+            fabBag.setOnClickListener(v -> {
+                AnimationUtil.animateButtonClick(v);
+                startActivity(new Intent(this, CartActivity.class));
+            });
+        }
 
-        BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
+        // Bottom Nav
         bottomNavigation.setSelectedItemId(R.id.nav_shop);
-
         bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.nav_history) {
+            if (itemId == R.id.nav_shop) {
+                return true;
+            } else if (itemId == R.id.nav_history) {
                 startActivity(new Intent(this, PaymentHistoryActivity.class));
-                return true;
-            } else if (itemId == R.id.nav_shop) {
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(this, AccountActivity.class));
                 return true;
             } else if (itemId == R.id.nav_bag) {
                 startActivity(new Intent(this, CartActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(this, AccountActivity.class));
                 return true;
             }
             return false;
@@ -104,7 +109,7 @@ public class PengunjungActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<BarangResponse> call, @NonNull Throwable t) {
-                Toast.makeText(PengunjungActivity.this, "Koneksi gagal: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(PengunjungActivity.this, "Koneksi gagal", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -115,7 +120,6 @@ public class PengunjungActivity extends AppCompatActivity {
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { filterProducts(); }
             @Override public void afterTextChanged(Editable s) {}
         });
-
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> filterProducts());
     }
 

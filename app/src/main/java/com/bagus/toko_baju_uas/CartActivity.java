@@ -35,10 +35,11 @@ import retrofit2.Response;
 public class CartActivity extends AppCompatActivity implements CartAdapter.OnCartChangeListener {
 
     private RecyclerView rvCart;
-    private TextView tvTotalHarga;
-    private LinearLayout emptyState, cartContent;
+    private TextView tvTotalHarga, tvSubtotal;
+    private LinearLayout emptyState, bottomLayout;
+    private View cartContent;
     private CartAdapter adapter;
-    private List<CartModel> cartList = new ArrayList<>();
+    private final List<CartModel> cartList = new ArrayList<>();
     private int totalBayar = 0;
 
     @Override
@@ -46,18 +47,24 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity_cart);
 
+        // Initialize UI Elements
         rvCart = findViewById(R.id.rvCart);
         tvTotalHarga = findViewById(R.id.tvTotalHarga);
+        tvSubtotal = findViewById(R.id.tvSubtotal);
         emptyState = findViewById(R.id.emptyState);
         cartContent = findViewById(R.id.cartContent);
+        bottomLayout = findViewById(R.id.bottomLayout);
+        
         ImageButton btnBack = findViewById(R.id.btnBack);
         MaterialButton btnCheckout = findViewById(R.id.btnCheckout);
         MaterialButton btnStartShopping = findViewById(R.id.btnStartShopping);
 
+        // Setup RecyclerView
         rvCart.setLayoutManager(new LinearLayoutManager(this));
         adapter = new CartAdapter(this, cartList, this);
         rvCart.setAdapter(adapter);
 
+        // Button Listeners
         btnBack.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
             finish();
@@ -65,10 +72,10 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
 
         btnCheckout.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
-            if (cartList.isEmpty()) {
-                Toast.makeText(this, "Keranjang Anda kosong!", Toast.LENGTH_SHORT).show();
-            } else {
+            if (!cartList.isEmpty()) {
                 prosesCheckout();
+            } else {
+                Toast.makeText(this, "Keranjang belanja masih kosong!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -82,7 +89,10 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
 
     private void loadCartData() {
         String uid = FirebaseAuth.getInstance().getUid();
-        if (uid == null) return;
+        if (uid == null) {
+            showCart(false);
+            return;
+        }
 
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         api.getCart(uid).enqueue(new Callback<CartResponse>() {
@@ -90,10 +100,12 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
             public void onResponse(@NonNull Call<CartResponse> call, @NonNull Response<CartResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
                     cartList.clear();
-                    cartList.addAll(response.body().getData());
+                    if (response.body().getData() != null) {
+                        cartList.addAll(response.body().getData());
+                    }
                     adapter.notifyDataSetChanged();
-                    updateTotalPrice();
-                    showCart(true);
+                    updatePriceCalculation();
+                    showCart(!cartList.isEmpty());
                 } else {
                     showCart(false);
                 }
@@ -101,59 +113,68 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
 
             @Override
             public void onFailure(@NonNull Call<CartResponse> call, @NonNull Throwable t) {
-                Toast.makeText(CartActivity.this, "Koneksi gagal: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(CartActivity.this, "Gagal memuat data: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 showCart(false);
             }
         });
     }
 
-    private void updateTotalPrice() {
-        totalBayar = 0;
+    private void updatePriceCalculation() {
+        int subtotal = 0;
         for (CartModel item : cartList) {
-            totalBayar += (item.getHarga() * item.getJumlah());
+            subtotal += (item.getHarga() * item.getJumlah());
         }
+        
+        int serviceFee = subtotal > 0 ? 2000 : 0;
+        totalBayar = subtotal + serviceFee;
+
         Locale localeID = new Locale("in", "ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
-        tvTotalHarga.setText(formatRupiah.format(totalBayar));
+        
+        if (tvSubtotal != null) tvSubtotal.setText(formatRupiah.format(subtotal));
+        if (tvTotalHarga != null) tvTotalHarga.setText(formatRupiah.format(totalBayar));
     }
 
     private void showCart(boolean hasItems) {
         if (hasItems) {
-            cartContent.setVisibility(View.VISIBLE);
-            emptyState.setVisibility(View.GONE);
-            findViewById(R.id.bottomCheckout).setVisibility(View.VISIBLE);
+            if (cartContent != null) cartContent.setVisibility(View.VISIBLE);
+            if (emptyState != null) emptyState.setVisibility(View.GONE);
+            if (bottomLayout != null) bottomLayout.setVisibility(View.VISIBLE);
         } else {
-            cartContent.setVisibility(View.GONE);
-            emptyState.setVisibility(View.VISIBLE);
-            findViewById(R.id.bottomCheckout).setVisibility(View.GONE);
+            if (cartContent != null) cartContent.setVisibility(View.GONE);
+            if (emptyState != null) emptyState.setVisibility(View.VISIBLE);
+            if (bottomLayout != null) bottomLayout.setVisibility(View.GONE);
         }
     }
 
     private void prosesCheckout() {
         String uid = FirebaseAuth.getInstance().getUid();
+        if (uid == null) return;
+
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         api.checkout(uid, totalBayar).enqueue(new Callback<BaseResponse>() {
             @Override
             public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    Toast.makeText(CartActivity.this, "Pembayaran Berhasil!", Toast.LENGTH_LONG).show();
-                    startActivity(new Intent(CartActivity.this, CheckoutSuccessActivity.class));
+                    // Berpindah ke halaman sukses pembayaran
+                    Intent intent = new Intent(CartActivity.this, CheckoutSuccessActivity.class);
+                    startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(CartActivity.this, "Gagal Checkout", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CartActivity.this, "Gagal memproses pembayaran.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                Toast.makeText(CartActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(CartActivity.this, "Koneksi ke server gagal.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public void onCartChanged() {
-        updateTotalPrice();
+        updatePriceCalculation();
         if (cartList.isEmpty()) showCart(false);
     }
 }

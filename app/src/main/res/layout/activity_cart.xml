@@ -6,34 +6,196 @@
     android:layout_height="match_parent"
     android:background="@color/luxe_bg">
 
-    <LinearLayout
+    <!-- Sticky Header -->
+    <RelativeLayout
         android:id="@+id/headerCart"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
         android:background="@color/white"
-        android:elevation="2dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="20dp">
+        android:elevation="4dp"
+        android:paddingHorizontal="16dp">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Kembali"
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/luxe_black" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Keranjang Belanja"
+            android:layout_centerInParent="true"
+            android:text="Keranjang Saya"
             android:textColor="@color/luxe_black"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
-    </LinearLayout>
+    </RelativeLayout>
 
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/cartContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomLayout"
+        android:layout_below="@id/headerCart"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Order List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_cart" />
+
+            <!-- Payment Method Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Metode Pembayaran"
+                android:textColor="@color/luxe_black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_orders"
+                        app:tint="@color/luxe_gold" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:text="Virtual Account (BCA/Mandiri)"
+                        android:textColor="@color/luxe_black"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/luxe_gray_dark" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Order Summary -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Ringkasan Pesanan"
+                android:textColor="@color/luxe_black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="32dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Subtotal Produk"
+                            android:textColor="@color/luxe_text_secondary" />
+                        <TextView
+                            android:id="@+id/tvSubtotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="Rp 0"
+                            android:textColor="@color/luxe_black" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Biaya Layanan"
+                            android:textColor="@color/luxe_text_secondary" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="Rp 2.000"
+                            android:textColor="@color/luxe_black" />
+                    </RelativeLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="16dp"
+                        android:background="@color/luxe_border" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Tagihan"
+                            android:textColor="@color/luxe_black"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvTotalHarga"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="Rp 0"
+                            android:textColor="@color/luxe_gold"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/emptyState"
         android:layout_width="match_parent"
@@ -48,145 +210,49 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:src="@drawable/ic_bag"
-            app:tint="@color/luxe_gray" />
+            app:tint="@color/luxe_gray_medium" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Keranjang Kosong"
+            android:text="Wah, keranjangmu kosong"
             android:textColor="@color/luxe_black"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStartShopping"
-            android:layout_width="200dp"
+            android:layout_width="wrap_content"
             android:layout_height="56dp"
             android:layout_marginTop="32dp"
-            android:text="Mulai Belanja"
+            android:paddingHorizontal="32dp"
+            android:text="Belanja Sekarang"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:backgroundTint="@color/luxe_gold"
             app:cornerRadius="12dp" />
     </LinearLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/cartContent"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottomCheckout"
-        android:layout_below="@id/headerCart">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvCart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_cart" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Metode Pembayaran"
-                android:textColor="@color/luxe_black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="24dp" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="1dp"
-                app:strokeWidth="0dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_orders"
-                        app:tint="@color/luxe_gold" />
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="16dp"
-                        android:text="Transfer Bank (Virtual Account)"
-                        android:textColor="@color/luxe_black" />
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_chevron_right" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginVertical="24dp"
-                android:background="@color/luxe_border" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ringkasan Pesanan"
-                android:textColor="@color/luxe_black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Total Harga Produk"
-                    android:textColor="@color/luxe_text_secondary"
-                    android:textSize="16sp" />
-                <TextView
-                    android:id="@+id/tvTotalHarga"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rp 0"
-                    android:textColor="@color/luxe_black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
+    <!-- Sticky Bottom Layout -->
     <LinearLayout
-        android:id="@+id/bottomCheckout"
+        android:id="@+id/bottomLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        android:elevation="8dp"
-        android:padding="20dp">
+        android:elevation="12dp"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCheckout"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="BAYAR SEKARANG"
+            android:text="PROSES PEMBAYARAN"
             android:textAllCaps="true"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="@color/luxe_gold"
             app:cornerRadius="12dp" />

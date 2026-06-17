@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -67,13 +66,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(holder.ivCartItem);
 
+        // Click Listeners with Animations
         holder.btnPlus.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
-            // In a real app, you would call API to update quantity
-            // For now, let's update locally for immediate feedback
-            // item.setJumlah(item.getJumlah() + 1); 
-            // In this specific model, fields might be private/final, so we just toast or notify
-            Toast.makeText(context, "Fitur ubah jumlah segera hadir!", Toast.LENGTH_SHORT).show();
+            // Simulate quantity increase (UI only for now)
+            // In a real app, call API to increment
+        });
+
+        holder.btnMinus.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            // Simulate quantity decrease (UI only for now)
         });
 
         holder.btnDelete.setOnClickListener(v -> {
@@ -90,10 +92,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             @Override
             public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    cartList.remove(position);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, cartList.size());
-                    if (listener != null) listener.onCartChanged();
+                    if (position < cartList.size()) {
+                        cartList.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, cartList.size());
+                        if (listener != null) listener.onCartChanged();
+                    }
                 }
             }
             @Override
