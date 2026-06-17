@@ -37,6 +37,6 @@
         android:layout_height="match_parent"
         android:padding="16dp"
         android:clipToPadding="false"
-        tools:listitem="@layout/item_account_setting" /> <!-- Reusing item if possible or create one -->
+        tools:listitem="@layout/item_customer_admin" />
 
 </LinearLayout>
