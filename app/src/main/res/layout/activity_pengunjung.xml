@@ -175,4 +175,17 @@
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 
+    <!-- Floating Bag Button (Shopee Style) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabBag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottomNavigation"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_bag"
+        app:backgroundTint="@color/luxe_gold"
+        app:tint="@color/white"
+        android:contentDescription="Buka Keranjang" />
+
 </RelativeLayout>

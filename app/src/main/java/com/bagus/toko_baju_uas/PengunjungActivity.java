@@ -55,9 +55,15 @@ public class PengunjungActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.etSearch);
         chipGroup = findViewById(R.id.chipGroup);
         RecyclerView rvProducts = findViewById(R.id.rvProducts);
+        com.google.android.material.floatingactionbutton.FloatingActionButton fabBag = findViewById(R.id.fabBag);
 
         adapter = new BajuCustomerAdapter(this, filteredProducts);
         rvProducts.setAdapter(adapter);
+
+        fabBag.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, CartActivity.class));
+        });
 
         BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
         bottomNavigation.setSelectedItemId(R.id.nav_shop);

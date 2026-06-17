@@ -10,6 +10,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class AccountActivity extends AppCompatActivity {
 
@@ -22,8 +23,18 @@ public class AccountActivity extends AppCompatActivity {
         if (user != null) {
             TextView tvName = findViewById(R.id.tvAccountName);
             TextView tvEmail = findViewById(R.id.tvAccountEmail);
-            tvName.setText(user.getDisplayName() != null ? user.getDisplayName() : "Luxe User");
+            
             tvEmail.setText(user.getEmail());
+            
+            // Ambil nama dari Firestore agar lebih akurat
+            FirebaseFirestore.getInstance().collection("users").document(user.getUid()).get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            tvName.setText(doc.getString("nama"));
+                        } else {
+                            tvName.setText("User Luxe");
+                        }
+                    });
         }
 
         MaterialButton btnLogout = findViewById(R.id.btnLogout);
@@ -37,7 +48,7 @@ public class AccountActivity extends AppCompatActivity {
         bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_shop) {
-                finish();
+                finish(); // Kembali ke katalog
                 return true;
             } else if (itemId == R.id.nav_history) {
                 startActivity(new Intent(this, PaymentHistoryActivity.class));

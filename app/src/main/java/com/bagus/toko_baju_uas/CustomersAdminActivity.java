@@ -54,7 +54,7 @@ public class CustomersAdminActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<UsersResponse> call, @NonNull Throwable t) {
-                Toast.makeText(CustomersAdminActivity.this, "Koneksi gagal", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CustomersAdminActivity.this, "Koneksi terputus: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
