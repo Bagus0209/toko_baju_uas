@@ -16,6 +16,14 @@
         android:theme="@style/Theme.Toko_baju_uas"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".PaymentHistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".UserActivity"
             android:exported="false" />
 

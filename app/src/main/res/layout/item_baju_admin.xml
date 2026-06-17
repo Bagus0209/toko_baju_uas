@@ -10,16 +10,16 @@
 
     <TextView
         android:id="@+id/tvIdBaju"
-        android:layout_width="40dp"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:text="001"
         android:textColor="#6B7280"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
     <com.google.android.material.card.MaterialCardView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="4dp"
         app:cardCornerRadius="4dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp">
@@ -35,71 +35,77 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cvIndikatorStok"
-        android:layout_width="8dp"
-        android:layout_height="8dp"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
         android:layout_marginStart="4dp"
-        app:cardCornerRadius="4dp"
+        app:cardCornerRadius="3dp"
         app:cardElevation="0dp" />
 
     <TextView
         android:id="@+id/tvNamaBaju"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_weight="1"
-        android:text="Silk Whisper Blouse"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1.2"
+        android:text="Silk Whisper"
         android:textColor="@color/luxe_black"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:maxLines="2"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/tvCategory"
-        android:layout_width="80dp"
+        android:layout_width="65dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
         android:background="@drawable/bg_pill_gray"
         android:gravity="center"
         android:paddingVertical="2dp"
         android:text="FASHION"
         android:textColor="#6B7280"
-        android:textSize="10sp" />
+        android:textSize="9sp" />
 
     <TextView
         android:id="@+id/tvHargaBaju"
-        android:layout_width="100dp"
+        android:layout_width="85dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
         android:gravity="end"
         android:text="Rp 1.250.000"
         android:textColor="@color/luxe_black"
-        android:textSize="13sp" />
+        android:textSize="11sp" />
 
     <TextView
         android:id="@+id/tvStokBaju"
-        android:layout_width="60dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
         android:gravity="center"
-        android:text="x 42"
+        android:text="42"
         android:textColor="@color/luxe_black"
-        android:textSize="13sp" />
+        android:textSize="11sp" />
 
     <LinearLayout
-        android:layout_width="64dp"
+        android:layout_width="54dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/btnEdit"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_edit"
             app:tint="#9CA3AF" />
 
         <ImageButton
             android:id="@+id/btnHapus"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_delete"
             app:tint="#EF4444" />

@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
     // 10.0.2.2 adalah IP khusus di emulator Android Studio untuk mengakses localhost komputer
     // Nanti 'api_tokobaju' adalah nama folder PHP yang akan kita buat di htdocs XAMPP
-    private static final String BASE_URL = "http://192.168.18.33/api_tokobaju/";
+    private static final String BASE_URL = "http://10.0.2.2/api_tokobaju/";
     private static Retrofit retrofit;
 
     public static Retrofit getClient() {

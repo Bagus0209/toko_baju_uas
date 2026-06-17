@@ -3,11 +3,17 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- LuxeThreads Palette -->
+    <!-- LuxeThreads Palette (Figma) -->
     <color name="luxe_black">#0A0A0A</color>
     <color name="luxe_white">#FAFAFA</color>
     <color name="luxe_gray">#F5F5F5</color>
-    <color name="luxe_orange">#D85A30</color>
+    <color name="luxe_orange">#D4A574</color>
+    <color name="luxe_bg">#F7F9FB</color>
+    <color name="luxe_card_bg">#FFFFFF</color>
+    <color name="luxe_border">#E8E8E8</color>
+    <color name="luxe_text_secondary">#757575</color>
+    <color name="luxe_input_bg">#F8F8F8</color>
+    <color name="luxe_accent_blue">#3B82F6</color>
 
     <!-- Status Colors -->
     <color name="status_paid">#4CAF50</color>

@@ -5,94 +5,52 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/luxe_white">
-
-    <RelativeLayout
-        android:id="@+id/topBar"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:paddingHorizontal="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:text="menu"
-            android:textColor="@color/luxe_black"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="LuxeThreads"
-            android:textColor="@color/luxe_black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="shopping_bag"
-                android:textColor="@color/luxe_black"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:text="notifications"
-            android:textColor="@color/luxe_black"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
+    android:background="@color/white">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottomNavigation"
-        android:layout_below="@id/topBar">
+        android:overScrollMode="never">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingTop="20dp">
 
-            <TextView
-                android:id="@+id/tvHello"
-                android:layout_width="wrap_content"
+            <!-- Greeting Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hello,\nCustomer"
-                android:textColor="@color/luxe_black"
-                android:textSize="32sp"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Discover the latest arrivals in luxury fashion"
-                android:textColor="#757575"
-                android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/tvHello"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hello,\nCustomer"
+                    android:textColor="@color/luxe_black"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Discover the latest arrivals in luxury fashion"
+                    android:textColor="@color/luxe_text_secondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Search Bar -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
                 android:layout_marginTop="24dp"
-                android:hint="Cari jaket, kemeja, celana..."
                 app:boxBackgroundColor="@color/luxe_gray"
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
@@ -100,21 +58,27 @@
                 app:boxCornerRadiusTopStart="12dp"
                 app:boxStrokeWidth="0dp"
                 app:boxStrokeWidthFocused="0dp"
-                app:hintTextColor="#757575"
-                app:startIconDrawable="@android:drawable/ic_menu_search"
-                app:startIconTint="#757575">
+                app:hintEnabled="false"
+                app:startIconDrawable="@drawable/ic_search"
+                app:startIconTint="@color/luxe_text_secondary">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:hint="Cari jaket, kemeja, celana..."
                     android:inputType="text"
-                    android:paddingVertical="12dp" />
+                    android:paddingVertical="14dp"
+                    android:textColorHint="@color/luxe_text_secondary" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Category Chips -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
+                android:clipToPadding="false"
+                android:paddingHorizontal="24dp"
                 android:scrollbars="none">
 
                 <com.google.android.material.chip.ChipGroup
@@ -132,6 +96,7 @@
                         android:textColor="@color/white"
                         app:chipBackgroundColor="@color/luxe_black"
                         app:chipCornerRadius="24dp"
+                        app:chipMinHeight="40dp"
                         app:chipStrokeWidth="0dp" />
 
                     <com.google.android.material.chip.Chip
@@ -142,6 +107,7 @@
                         android:textColor="@color/luxe_black"
                         app:chipBackgroundColor="@color/luxe_gray"
                         app:chipCornerRadius="24dp"
+                        app:chipMinHeight="40dp"
                         app:chipStrokeWidth="0dp" />
 
                     <com.google.android.material.chip.Chip
@@ -152,6 +118,7 @@
                         android:textColor="@color/luxe_black"
                         app:chipBackgroundColor="@color/luxe_gray"
                         app:chipCornerRadius="24dp"
+                        app:chipMinHeight="40dp"
                         app:chipStrokeWidth="0dp" />
 
                     <com.google.android.material.chip.Chip
@@ -162,6 +129,7 @@
                         android:textColor="@color/luxe_black"
                         app:chipBackgroundColor="@color/luxe_gray"
                         app:chipCornerRadius="24dp"
+                        app:chipMinHeight="40dp"
                         app:chipStrokeWidth="0dp" />
 
                     <com.google.android.material.chip.Chip
@@ -172,17 +140,21 @@
                         android:textColor="@color/luxe_black"
                         app:chipBackgroundColor="@color/luxe_gray"
                         app:chipCornerRadius="24dp"
+                        app:chipMinHeight="40dp"
                         app:chipStrokeWidth="0dp" />
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
+            <!-- Product Grid -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvProducts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="16dp"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="2"
                 tools:listitem="@layout/item_product_customer" />
@@ -190,12 +162,14 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
+        android:elevation="8dp"
         app:itemIconTint="@color/luxe_black"
         app:itemTextColor="@color/luxe_black"
         app:labelVisibilityMode="labeled"

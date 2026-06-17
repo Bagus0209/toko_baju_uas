@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">toko_baju_uas</string>
+    <string name="product_id_format">#PRD-%1$d</string>
+    <string name="delete_title">Hapus Produk</string>
+    <string name="delete_confirm_msg">Apakah Anda yakin ingin menghapus %1$s?</string>
+    <string name="delete">Hapus</string>
+    <string name="delete_failed">Gagal menghapus produk</string>
+    <string name="error_format">Error: %1$s</string>
+    <string name="cancel">Batal</string>
+    <string name="stock_format">Stok: %1$d</string>
+    <string name="buy_toast_format">Anda memilih untuk membeli: %1$s</string>
+    <string name="total_price_format">Total: %1$s</string>
 </resources>

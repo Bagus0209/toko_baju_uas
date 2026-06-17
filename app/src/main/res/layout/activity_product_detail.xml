@@ -34,7 +34,7 @@
                     android:layout_margin="16dp"
                     android:background="@drawable/bg_circle_white"
                     android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_revert"
+                    android:src="@drawable/ic_arrow_back"
                     app:tint="@color/luxe_black" />
 
                 <ImageButton
@@ -45,7 +45,7 @@
                     android:layout_margin="16dp"
                     android:background="@drawable/bg_circle_white"
                     android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_share"
+                    android:src="@drawable/ic_share"
                     app:tint="@color/luxe_black" />
             </RelativeLayout>
 
@@ -174,7 +174,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="10dp"
                 android:scaleType="centerInside"
-                android:src="@android:drawable/ic_menu_delete"
+                android:src="@drawable/ic_remove"
                 app:tint="@color/luxe_black" />
 
             <TextView
@@ -192,7 +192,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="10dp"
                 android:scaleType="centerInside"
-                android:src="@android:drawable/ic_input_add"
+                android:src="@drawable/ic_add"
                 app:tint="@color/luxe_black" />
         </LinearLayout>
 

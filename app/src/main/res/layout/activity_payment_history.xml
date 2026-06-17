@@ -3,22 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/luxe_white">
+    android:background="@color/luxe_bg">
 
+    <!-- Header -->
     <LinearLayout
         android:id="@+id/headerHistory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="2dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="20dp">
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp">
 
         <ImageButton
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Kembali"
+            android:src="@drawable/ic_arrow_back"
             app:tint="@color/luxe_black" />
 
         <TextView
@@ -36,20 +41,26 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_popup_reminder"
+            android:contentDescription="Notifikasi"
+            android:src="@drawable/ic_notifications"
             app:tint="@color/luxe_black" />
     </LinearLayout>
 
+    <!-- Filter Chips -->
     <HorizontalScrollView
         android:id="@+id/tabScroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/headerHistory"
-        android:layout_marginBottom="16dp"
+        android:background="@color/white"
+        android:elevation="1dp"
         android:paddingHorizontal="20dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="16dp"
         android:scrollbars="none">
 
         <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:singleSelection="true">
@@ -63,6 +74,7 @@
                 android:textColor="@color/white"
                 app:chipBackgroundColor="@color/luxe_black"
                 app:chipCornerRadius="24dp"
+                app:chipMinHeight="36dp"
                 app:chipStrokeWidth="0dp" />
 
             <com.google.android.material.chip.Chip
@@ -73,6 +85,7 @@
                 android:textColor="@color/luxe_black"
                 app:chipBackgroundColor="@color/luxe_gray"
                 app:chipCornerRadius="24dp"
+                app:chipMinHeight="36dp"
                 app:chipStrokeWidth="0dp" />
 
             <com.google.android.material.chip.Chip
@@ -83,6 +96,7 @@
                 android:textColor="@color/luxe_black"
                 app:chipBackgroundColor="@color/luxe_gray"
                 app:chipCornerRadius="24dp"
+                app:chipMinHeight="36dp"
                 app:chipStrokeWidth="0dp" />
 
             <com.google.android.material.chip.Chip
@@ -93,16 +107,21 @@
                 android:textColor="@color/luxe_black"
                 app:chipBackgroundColor="@color/luxe_gray"
                 app:chipCornerRadius="24dp"
+                app:chipMinHeight="36dp"
                 app:chipStrokeWidth="0dp" />
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
+    <!-- Daftar Riwayat -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHistory"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/tabScroll"
-        android:paddingHorizontal="20dp" />
+        android:clipToPadding="false"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp" />
 
 </RelativeLayout>

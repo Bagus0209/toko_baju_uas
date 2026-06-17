@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/luxe_bg">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -25,6 +25,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <!-- Profile Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,7 +37,7 @@
                     android:layout_height="100dp"
                     android:background="@color/luxe_gray"
                     android:padding="20dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
+                    android:src="@drawable/ic_person"
                     app:shapeAppearanceOverlay="@style/CircleImageView"
                     app:tint="@color/luxe_black" />
 
@@ -53,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="budi.s@example.com"
-                    android:textColor="#757575"
+                    android:textColor="@color/luxe_text_secondary"
                     android:textSize="14sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -64,11 +65,11 @@
                     android:text="Edit Profile"
                     android:textAllCaps="false"
                     android:textColor="@color/luxe_black"
-                    app:cornerRadius="8dp"
-                    app:strokeColor="@color/luxe_black" />
+                    app:cornerRadius="10dp"
+                    app:strokeColor="@color/luxe_border" />
             </LinearLayout>
 
-            <!-- Sections -->
+            <!-- ACCOUNT SETTINGS Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -76,34 +77,92 @@
                 android:layout_marginBottom="12dp"
                 android:letterSpacing="0.1"
                 android:text="ACCOUNT SETTINGS"
-                android:textColor="#757575"
+                android:textColor="@color/luxe_text_secondary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/luxe_gray"
-                app:strokeWidth="1dp">
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <include layout="@layout/item_account_setting" />
+                    <!-- Personal Information -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_person"
+                            app:tint="@color/luxe_black" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:text="Personal Information"
+                            android:textColor="@color/luxe_black"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/luxe_text_secondary" />
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
+                        android:layout_marginStart="56dp"
                         android:background="@color/luxe_gray" />
 
-                    <include layout="@layout/item_account_setting" />
+                    <!-- Security -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="@color/luxe_black" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:text="Security"
+                            android:textColor="@color/luxe_black"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/luxe_text_secondary" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- SHOPPING Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -111,41 +170,128 @@
                 android:layout_marginBottom="12dp"
                 android:letterSpacing="0.1"
                 android:text="SHOPPING"
-                android:textColor="#757575"
+                android:textColor="@color/luxe_text_secondary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/luxe_gray"
-                app:strokeWidth="1dp">
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <include layout="@layout/item_account_setting" />
+                    <!-- My Orders -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_bag"
+                            app:tint="@color/luxe_black" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:text="My Orders"
+                            android:textColor="@color/luxe_black"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/luxe_text_secondary" />
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
+                        android:layout_marginStart="56dp"
                         android:background="@color/luxe_gray" />
 
-                    <include layout="@layout/item_account_setting" />
+                    <!-- Shipping Addresses -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_local_shipping"
+                            app:tint="@color/luxe_black" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:text="Shipping Addresses"
+                            android:textColor="@color/luxe_black"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/luxe_text_secondary" />
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
+                        android:layout_marginStart="56dp"
                         android:background="@color/luxe_gray" />
 
-                    <include layout="@layout/item_account_setting" />
+                    <!-- Payment Methods -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_orders"
+                            app:tint="@color/luxe_black" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:text="Payment Methods"
+                            android:textColor="@color/luxe_black"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/luxe_text_secondary" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- PREFERENCES Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -153,70 +299,90 @@
                 android:layout_marginBottom="12dp"
                 android:letterSpacing="0.1"
                 android:text="PREFERENCES"
-                android:textColor="#757575"
+                android:textColor="@color/luxe_text_secondary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="40dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/luxe_gray"
-                app:strokeWidth="1dp">
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <RelativeLayout
+                    <!-- Notifications -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:paddingHorizontal="16dp">
 
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_notifications"
+                            app:tint="@color/luxe_black" />
+
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
                             android:text="Notifications"
-                            android:textColor="@color/luxe_black" />
+                            android:textColor="@color/luxe_black"
+                            android:textSize="15sp" />
 
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
                             android:checked="true" />
-                    </RelativeLayout>
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
+                        android:layout_marginStart="56dp"
                         android:background="@color/luxe_gray" />
 
-                    <RelativeLayout
+                    <!-- Dark Mode -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:paddingHorizontal="16dp">
 
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_settings"
+                            app:tint="@color/luxe_black" />
+
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
                             android:text="Dark Mode"
-                            android:textColor="@color/luxe_black" />
+                            android:textColor="@color/luxe_black"
+                            android:textSize="15sp" />
 
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true" />
-                    </RelativeLayout>
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Log Out Button -->
             <com.google.android.material.button.MaterialButton
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
@@ -225,7 +391,7 @@
                 android:text="Log Out"
                 android:textAllCaps="false"
                 android:textColor="#F44336"
-                app:cornerRadius="8dp"
+                app:cornerRadius="12dp"
                 app:strokeColor="#F44336" />
 
         </LinearLayout>
@@ -237,6 +403,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
+        android:elevation="8dp"
         app:itemIconTint="@color/luxe_black"
         app:itemTextColor="@color/luxe_black"
         app:labelVisibilityMode="labeled"

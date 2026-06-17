@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
     app:strokeWidth="0dp">
 
     <LinearLayout
@@ -13,26 +14,30 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Product Image Container -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp">
+            android:layout_height="220dp">
 
             <ImageView
                 android:id="@+id/ivProductImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/luxe_gray"
+                android:contentDescription="Gambar Produk"
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/ic_menu_gallery" />
 
+            <!-- Add to Cart Button -->
             <ImageButton
                 android:id="@+id/btnAdd"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_margin="12dp"
                 android:background="@drawable/bg_circle_orange"
+                android:contentDescription="Tambah ke Keranjang"
                 android:elevation="4dp"
                 android:padding="8dp"
                 android:src="@android:drawable/ic_input_add"
@@ -40,11 +45,12 @@
 
         </RelativeLayout>
 
+        <!-- Product Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="14dp">
 
             <TextView
                 android:id="@+id/tvProductName"
@@ -63,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Rp 4.500.000"
-                android:textColor="#757575"
+                android:textColor="@color/luxe_text_secondary"
                 android:textSize="13sp" />
 
         </LinearLayout>

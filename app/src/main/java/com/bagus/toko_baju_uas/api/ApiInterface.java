@@ -20,6 +20,15 @@ public interface ApiInterface {
     );
 
     @FormUrlEncoded
+    @POST("register.php")
+    Call<BaseResponse> register(
+            @Field("name") String name,
+            @Field("email") String email,
+            @Field("password") String password,
+            @Field("role") String role
+    );
+
+    @FormUrlEncoded
     @POST("tambah_barang.php")
     Call<BaseResponse> tambahBarang(
             @Field("nama_barang") String nama,

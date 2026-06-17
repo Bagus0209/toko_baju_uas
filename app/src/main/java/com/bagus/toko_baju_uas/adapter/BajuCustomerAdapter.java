@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,18 +15,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bagus.toko_baju_uas.R;
 import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bumptech.glide.Glide;
-import com.google.android.material.button.MaterialButton;
 
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class BajuUserAdapter extends RecyclerView.Adapter<BajuUserAdapter.ViewHolder> {
+public class BajuCustomerAdapter extends RecyclerView.Adapter<BajuCustomerAdapter.ViewHolder> {
 
     private final Context context;
     private final List<BajuModel> listBaju;
 
-    public BajuUserAdapter(Context context, List<BajuModel> listBaju) {
+    public BajuCustomerAdapter(Context context, List<BajuModel> listBaju) {
         this.context = context;
         this.listBaju = listBaju;
     }
@@ -33,8 +33,7 @@ public class BajuUserAdapter extends RecyclerView.Adapter<BajuUserAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Menyambungkan dengan desain kartu Pengunjung
-        View view = LayoutInflater.from(context).inflate(R.layout.item_baju_user, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_product_customer, parent, false);
         return new ViewHolder(view);
     }
 
@@ -42,23 +41,22 @@ public class BajuUserAdapter extends RecyclerView.Adapter<BajuUserAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BajuModel baju = listBaju.get(position);
 
-        holder.tvNamaBaju.setText(baju.getNamaBarang());
-        holder.tvStokBaju.setText(context.getString(R.string.stock_format, baju.getStok()));
+        holder.tvProductName.setText(baju.getNamaBarang());
 
-        // Format angka menjadi Rupiah
+        // Format price to Rupiah
         Locale localeID = new Locale("in", "ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
-        holder.tvHargaBaju.setText(formatRupiah.format(baju.getHarga()));
+        holder.tvProductPrice.setText(formatRupiah.format(baju.getHarga()));
 
-        // Menampilkan Gambar dengan Glide
+        // Load image using Glide
         Glide.with(context)
                 .load(baju.getGambar())
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .error(android.R.drawable.ic_menu_gallery)
-                .into(holder.ivGambarBaju);
+                .into(holder.ivProductImage);
 
-        // Aksi Tombol Beli (Untuk saat ini kita beri efek Toast saja)
-        holder.btnBeli.setOnClickListener(v -> {
+        // Add action button logic
+        holder.btnAdd.setOnClickListener(v -> {
             Toast.makeText(context, context.getString(R.string.buy_toast_format, baju.getNamaBarang()), Toast.LENGTH_SHORT).show();
         });
     }
@@ -69,18 +67,16 @@ public class BajuUserAdapter extends RecyclerView.Adapter<BajuUserAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvNamaBaju, tvHargaBaju, tvStokBaju;
-        ImageView ivGambarBaju;
-        MaterialButton btnBeli;
+        ImageView ivProductImage;
+        ImageButton btnAdd;
+        TextView tvProductName, tvProductPrice;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Inisialisasi ID yang sesuai dengan item_baju_user.xml
-            tvNamaBaju = itemView.findViewById(R.id.tvNamaBajuUser);
-            tvHargaBaju = itemView.findViewById(R.id.tvHargaBajuUser);
-            tvStokBaju = itemView.findViewById(R.id.tvStokBajuUser);
-            ivGambarBaju = itemView.findViewById(R.id.ivGambarBajuUser);
-            btnBeli = itemView.findViewById(R.id.btnBeli);
+            ivProductImage = itemView.findViewById(R.id.ivProductImage);
+            btnAdd = itemView.findViewById(R.id.btnAdd);
+            tvProductName = itemView.findViewById(R.id.tvProductName);
+            tvProductPrice = itemView.findViewById(R.id.tvProductPrice);
         }
     }
 }

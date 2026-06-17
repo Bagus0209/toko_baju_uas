@@ -28,18 +28,14 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
-<<<<<<< HEAD
-@SuppressWarnings("deprecation")
-=======
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
->>>>>>> b1751287b124c76c5acfd809ee09619c219a224e
 public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.ViewHolder> {
 
-    private Context context;
-    private List<BajuModel> listBaju;
+    private final Context context;
+    private final List<BajuModel> listBaju;
 
     public BajuAdminAdapter(Context context, List<BajuModel> listBaju) {
         this.context = context;
@@ -57,7 +53,7 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BajuModel baju = listBaju.get(position);
 
-        holder.tvIdBaju.setText("#PRD-" + baju.getIdBarang());
+        holder.tvIdBaju.setText(context.getString(R.string.product_id_format, baju.getIdBarang()));
         holder.tvNamaBaju.setText(baju.getNamaBarang());
         holder.tvStokBaju.setText(String.valueOf(baju.getStok()));
 
@@ -91,35 +87,35 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
 
         // TOMBOL HAPUS
         holder.btnHapus.setOnClickListener(v -> {
-            int currentPosition = holder.getAdapterPosition();
+            int currentPosition = holder.getBindingAdapterPosition();
             if (currentPosition == RecyclerView.NO_POSITION) return;
 
             BajuModel bajuTarget = listBaju.get(currentPosition);
 
             new AlertDialog.Builder(context)
-                    .setTitle("Hapus Produk")
-                    .setMessage("Apakah Anda yakin ingin menghapus " + bajuTarget.getNamaBarang() + "?")
-                    .setPositiveButton("Hapus", (dialog, which) -> {
+                    .setTitle(context.getString(R.string.delete_title))
+                    .setMessage(context.getString(R.string.delete_confirm_msg, bajuTarget.getNamaBarang()))
+                    .setPositiveButton(context.getString(R.string.delete), (dialog, which) -> {
                         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
                         api.hapusBarang(bajuTarget.getIdBarang()).enqueue(new Callback<BaseResponse>() {
                             @Override
-                            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
                                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
                                     Toast.makeText(context, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                                     listBaju.remove(currentPosition);
                                     notifyItemRemoved(currentPosition);
                                 } else {
-                                    Toast.makeText(context, "Gagal menghapus produk", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, context.getString(R.string.delete_failed), Toast.LENGTH_SHORT).show();
                                 }
                             }
 
                             @Override
-                            public void onFailure(Call<BaseResponse> call, Throwable t) {
-                                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
+                                Toast.makeText(context, context.getString(R.string.error_format, t.getMessage()), Toast.LENGTH_SHORT).show();
                             }
                         });
                     })
-                    .setNegativeButton("Batal", null)
+                    .setNegativeButton(context.getString(R.string.cancel), null)
                     .show();
         });
     }
@@ -129,7 +125,7 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
         return listBaju.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvIdBaju, tvNamaBaju, tvHargaBaju, tvStokBaju;
         ImageView ivGambarBaju;
         CardView cvIndikatorStok;
