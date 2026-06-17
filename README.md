@@ -12,7 +12,7 @@ Aplikasi toko baju kelas atas yang mengintegrasikan **Firebase Authentication** 
 *   **Admin Dashboard Insight**: Statistik real-time (Total Produk, Pesanan, dan Omzet).
 *   **Inventory Control**: Manajemen stok barang (CRUD) lengkap dengan upload nama file gambar.
 *   **Admin Quota System**: Pendaftaran Admin dibatasi maksimal **3 orang** untuk keamanan.
-*   **Full Shopping Flow**: Tambah keranjang, kelola item belanja, hingga proses Checkout berhasil.
+*   **Full Shopping Flow (Shopee Style)**: Tambah keranjang, kelola jumlah item (+/-), hingga proses Checkout sukses.
 *   **Premium UI/UX**: Palet warna Gold & Charcoal, teks besar yang jelas, dan animasi scale pada setiap tombol.
 
 ---
@@ -35,7 +35,7 @@ api_tokobaju/
 ├── get_cart.php
 ├── delete_cart.php
 ├── checkout.php
-└── admin_service.php   <-- Untuk statistik & cek kuota admin
+└── admin_service.php   <-- Untuk statistik, daftar pelanggan & cek kuota admin
 ```
 
 ### B. Konfigurasi Database (SQL Final)
@@ -64,7 +64,7 @@ CREATE TABLE barang (
 -- 3. Tabel Keranjang (Shopping Cart)
 CREATE TABLE keranjang (
     id_cart INT(11) PRIMARY KEY AUTO_INCREMENT,
-    id_user VARCHAR(255) NOT NULL,
+    id_user VARCHAR(255) NOT NULL, -- Diisi UID Firebase
     id_barang INT(11) NOT NULL,
     jumlah INT(11) NOT NULL DEFAULT 1,
     FOREIGN KEY (id_barang) REFERENCES barang(id_barang) ON DELETE CASCADE
@@ -73,7 +73,7 @@ CREATE TABLE keranjang (
 -- 4. Tabel Transaksi (Pesanan & Omzet)
 CREATE TABLE transaksi (
     id_transaksi INT(11) PRIMARY KEY AUTO_INCREMENT,
-    id_user VARCHAR(255) NOT NULL,
+    id_user VARCHAR(255) NOT NULL, -- Diisi UID Firebase
     total_harga INT(11) NOT NULL,
     tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status ENUM('Selesai', 'Berlangsung', 'Gagal') DEFAULT 'Selesai'
@@ -93,7 +93,7 @@ INSERT INTO barang (nama_barang, harga, stok, gambar) VALUES
 ## 🔥 2. Konfigurasi Firebase (Keamanan)
 
 1.  Aktifkan **Authentication** (Email/Pass & Google) di Firebase Console.
-2.  Aktifkan **Cloud Firestore** (Start in Test Mode).
+2.  Aktifkan **Cloud Firestore** (Standard Edition).
 3.  Daftarkan **SHA-1** laptop Anda ke Project Settings Firebase.
     *   *Cara ambil SHA-1*: Jalankan `./gradlew signingReport` di Terminal Android Studio.
 4.  Download `google-services.json` dan letakkan di folder `app/` proyek.
@@ -102,7 +102,7 @@ INSERT INTO barang (nama_barang, harga, stok, gambar) VALUES
 
 ## 📱 3. Konfigurasi Aplikasi (Android Studio)
 
-1.  **Cek IP Wi-Fi Laptop**: Buka CMD, ketik `ipconfig`. (Berdasarkan testing terakhir: **`192.168.1.16`**).
+1.  **Cek IP Wi-Fi Laptop**: Buka CMD, ketik `ipconfig`. (IP Terdeteksi: **`192.168.1.16`**).
 2.  **Update Alamat Server**: Buka `com.bagus.toko_baju_uas.api.ApiClient.java`.
     ```java
     public static final String IP_LAPTOP = "192.168.1.16"; 
@@ -113,22 +113,22 @@ INSERT INTO barang (nama_barang, harga, stok, gambar) VALUES
 
 ## 🧪 4. Panduan Pengujian (Testing)
 
-### Role Admin (Maks 3 Orang)
+### Role Admin (Eksklusif: Maks 3 Orang)
 *   Daftar melalui menu **Sign Up**, pilih role **Admin**.
-*   Jika sudah ada 3 admin di database, pendaftaran Admin ke-4 akan ditolak otomatis.
-*   Dashboard akan menampilkan total pendapatan dan jumlah pesanan secara otomatis.
+*   Buka menu samping (Drawer) untuk mengakses **Orders** (Riwayat semua pesanan) dan **Customers** (Daftar pelanggan terdaftar).
+*   Dashboard otomatis menampilkan total pendapatan dan jumlah pesanan secara real-time.
 
 ### Role Pengunjung
-*   Gunakan tombol **Continue with Google** untuk akses instan.
-*   Pencarian: Ketik "Denim" di search bar untuk filter instan.
-*   Belanja: Klik (+) pada produk, lalu cek menu **Bag** untuk Checkout.
+*   Gunakan tombol **Continue with Google** untuk akses instan tanpa daftar manual.
+*   **Pencarian**: Gunakan search bar untuk memfilter produk secara responsif.
+*   **Belanja**: Klik (+) pada produk untuk tambah keranjang, atur jumlah di menu **Bag**, lalu tekan **Bayar Sekarang**.
 
 ---
 
 ## 🆘 Troubleshooting
-*   **Gambar Tidak Muncul**: Pastikan ekstensi file di folder `images` sama dengan di database (contoh: `shirt.jpg` vs `shirt.jpg`).
-*   **Koneksi Timeout**: Matikan **Windows Firewall** atau pastikan HP dan Laptop di Wi-Fi yang sama.
-*   **Google Login Failed**: Biasanya SHA-1 di Firebase Console belum diupdate atau belum Sync Gradle.
+*   **Gambar Tidak Muncul**: Pastikan file di folder `images` menggunakan huruf kecil semua sesuai database (contoh: `shirt.jpg`).
+*   **Koneksi Gagal**: Matikan **Windows Firewall** atau pastikan HP dan Laptop di Wi-Fi yang sama.
+*   **Sesi Tidak Tersimpan**: Pastikan `SplashActivity` sudah terdaftar sebagai LAUNCHER di AndroidManifest.
 
 ---
-*LuxeThreads App - Ultimate Luxury Fashion Experience*
+*LuxeThreads App - Ultimate Luxury Fashion Experience for UAS 2024*
