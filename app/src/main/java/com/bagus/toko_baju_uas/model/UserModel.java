@@ -6,12 +6,14 @@ public class UserModel {
     private int id_user;
     
     @SerializedName("nama")
-    private String username; // Tetap gunakan variabel username agar tidak merusak kode lain, tapi map ke "nama" dari JSON
-
+    private String username;
+    
+    private String email;
     private String role;
 
-    // Getter untuk mengambil nilai
+    // Getter
     public int getIdUser() { return id_user; }
     public String getUsername() { return username; }
+    public String getEmail() { return email; }
     public String getRole() { return role; }
 }

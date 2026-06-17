@@ -51,27 +51,53 @@ public class RegisterActivity extends AppCompatActivity {
 
         btnSignUp.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
-            String name = etName.getText() != null ? etName.getText().toString().trim() : "";
-            String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
-            String password = etPassword.getText() != null ? etPassword.getText().toString().trim() : "";
-
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Semua kolom wajib diisi!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String selectedRole = "pengunjung";
-            int selectedRoleId = rgRole.getCheckedRadioButtonId();
-            if (selectedRoleId == R.id.rbAdmin) {
-                selectedRole = "admin";
-            }
-
-            prosesRegistrasiHybrid(name, email, password, selectedRole);
+            validateAndRegister();
         });
 
         tvSignIn.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
             finish();
+        });
+    }
+
+    private void validateAndRegister() {
+        String name = etName.getText() != null ? etName.getText().toString().trim() : "";
+        String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
+        String password = etPassword.getText() != null ? etPassword.getText().toString().trim() : "";
+
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Semua kolom wajib diisi!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String selectedRole = "pengunjung";
+        int selectedRoleId = rgRole.getCheckedRadioButtonId();
+        if (selectedRoleId == R.id.rbAdmin) {
+            selectedRole = "admin";
+            checkAdminLimitThenRegister(name, email, password, "admin");
+        } else {
+            prosesRegistrasiHybrid(name, email, password, "pengunjung");
+        }
+    }
+
+    private void checkAdminLimitThenRegister(String name, String email, String password, String role) {
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.checkAdminCount().enqueue(new Callback<BaseResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isStatus()) {
+                        prosesRegistrasiHybrid(name, email, password, role);
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "Slot Admin sudah penuh (Maks 3)!", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
+                Toast.makeText(RegisterActivity.this, "Gagal cek limit: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -82,7 +108,7 @@ public class RegisterActivity extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
                             saveUserToFirestore(user.getUid(), name, email, role);
-                            registerToMySQL(name, email, password, role);
+                            registerToMySQL(user.getUid(), name, email, password, role);
                         }
                     } else {
                         Toast.makeText(RegisterActivity.this, "Pendaftaran Gagal: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
@@ -90,18 +116,13 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    private void registerToMySQL(String name, String email, String password, String role) {
+    private void registerToMySQL(String uid, String name, String email, String password, String role) {
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
-        api.register(name, email, password, role).enqueue(new Callback<BaseResponse>() {
+        api.register(uid, name, email, password, role).enqueue(new Callback<BaseResponse>() {
             @Override
-            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
-                // MySQL persistence (Success or fail doesn't block user experience)
-            }
-
+            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {}
             @Override
-            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                // Handled via Firebase session
-            }
+            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {}
         });
     }
 
@@ -113,7 +134,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         mFirestore.collection("users").document(uid).set(userMap)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(RegisterActivity.this, "Registrasi Berhasil!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Registrasi Berhasil sebagai " + role, Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> Toast.makeText(RegisterActivity.this, "Firestore Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());

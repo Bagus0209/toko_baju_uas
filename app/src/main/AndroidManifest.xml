@@ -23,6 +23,12 @@
             android:name=".AccountActivity"
             android:exported="false" />
         <activity
+            android:name=".TransactionsAdminActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CustomersAdminActivity"
+            android:exported="false" />
+        <activity
             android:name=".PaymentHistoryActivity"
             android:exported="false" />
 
@@ -47,14 +53,17 @@
             android:name=".AdminActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

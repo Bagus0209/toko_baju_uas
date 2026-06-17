@@ -25,18 +25,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Riwayat Pesanan"
+            android:text="Daftar Pelanggan"
             android:textColor="@color/luxe_black"
             android:textSize="18sp"
             android:textStyle="bold" />
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvOrdersAdmin"
+        android:id="@+id/rvCustomersAdmin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
         android:clipToPadding="false"
-        tools:listitem="@layout/item_transaction_admin" />
+        tools:listitem="@layout/item_account_setting" /> <!-- Reusing item if possible or create one -->
 
 </LinearLayout>
