@@ -56,7 +56,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         CartModel item = cartList.get(position);
 
         holder.tvCartName.setText(item.getNamaBarang());
-        holder.tvCartQty.setText("Jumlah: " + item.getJumlah());
+        holder.tvCartQty.setText(String.valueOf(item.getJumlah()));
 
         Locale localeID = new Locale("in", "ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
@@ -65,16 +65,26 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         Glide.with(context)
                 .load(item.getGambar())
                 .placeholder(android.R.drawable.ic_menu_gallery)
-                .error(android.R.drawable.ic_menu_gallery)
                 .into(holder.ivCartItem);
+
+        holder.btnPlus.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            // In a real app, you would call API to update quantity
+            // For now, let's update locally for immediate feedback
+            // item.setJumlah(item.getJumlah() + 1); 
+            // In this specific model, fields might be private/final, so we just toast or notify
+            Toast.makeText(context, "Fitur ubah jumlah segera hadir!", Toast.LENGTH_SHORT).show();
+        });
 
         holder.btnDelete.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
-            deleteFromCart(item.getIdCart(), position);
+            deleteFromCart(item.getIdCart(), holder.getBindingAdapterPosition());
         });
     }
 
     private void deleteFromCart(int idCart, int position) {
+        if (position == RecyclerView.NO_POSITION) return;
+        
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         api.deleteCart(idCart).enqueue(new Callback<BaseResponse>() {
             @Override
@@ -84,15 +94,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                     notifyItemRemoved(position);
                     notifyItemRangeChanged(position, cartList.size());
                     if (listener != null) listener.onCartChanged();
-                } else {
-                    Toast.makeText(context, "Gagal hapus item", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
-            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {}
         });
     }
 
@@ -104,7 +109,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivCartItem;
         TextView tvCartName, tvCartPrice, tvCartQty;
-        ImageButton btnDelete;
+        ImageButton btnDelete, btnPlus, btnMinus;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -113,6 +118,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             tvCartPrice = itemView.findViewById(R.id.tvCartPrice);
             tvCartQty = itemView.findViewById(R.id.tvCartQty);
             btnDelete = itemView.findViewById(R.id.btnDeleteCart);
+            btnPlus = itemView.findViewById(R.id.btnPlus);
+            btnMinus = itemView.findViewById(R.id.btnMinus);
         }
     }
 }

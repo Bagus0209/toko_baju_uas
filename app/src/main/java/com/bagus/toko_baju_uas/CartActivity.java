@@ -1,5 +1,6 @@
 package com.bagus.toko_baju_uas;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -135,10 +136,9 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
             @Override
             public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    Toast.makeText(CartActivity.this, "Pembayaran Berhasil! Pesanan diproses.", Toast.LENGTH_LONG).show();
-                    cartList.clear();
-                    adapter.notifyDataSetChanged();
-                    showCart(false);
+                    Toast.makeText(CartActivity.this, "Pembayaran Berhasil!", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(CartActivity.this, CheckoutSuccessActivity.class));
+                    finish();
                 } else {
                     Toast.makeText(CartActivity.this, "Gagal Checkout", Toast.LENGTH_SHORT).show();
                 }
