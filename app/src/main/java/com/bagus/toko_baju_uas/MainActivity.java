@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -33,6 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@SuppressWarnings("deprecation")
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9001;
@@ -44,6 +46,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Initialize Dark Mode from preferences
+        android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
+        boolean isDarkMode = sp.getBoolean("dark_mode", false);
+        if (isDarkMode) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity_main);
 
@@ -111,7 +122,18 @@ public class MainActivity extends AppCompatActivity {
                     firebaseAuthWithGoogle(account.getIdToken());
                 }
             } catch (ApiException e) {
-                Toast.makeText(this, "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (e.getStatusCode() == 10) {
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Google Sign In Developer Mismatch")
+                            .setMessage("Gagal masuk dengan Google (Error 10: SHA-1 Mismatch).\n\nApakah Anda ingin masuk sebagai Akun Pengunjung Demo untuk testing?")
+                            .setPositiveButton("Masuk Demo", (dialog, which) -> {
+                                prosesLoginHybrid("pengunjung@luxethreads.com", "user123");
+                            })
+                            .setNegativeButton("Batal", null)
+                            .show();
+                } else {
+                    Toast.makeText(this, "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -135,7 +157,49 @@ public class MainActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         authMySQL(email, password);
                     } else {
-                        Toast.makeText(MainActivity.this, "Login Gagal: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                        // Fallback: Check local MySQL database first
+                        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+                        api.login(email, password).enqueue(new Callback<LoginResponse>() {
+                            @Override
+                            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
+                                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
+                                    // Local MySQL login succeeded!
+                                    String userRole = response.body().getData().getRole();
+                                    String nama = response.body().getData().getUsername();
+                                    
+                                    // Try to register user dynamically in Firebase Auth so they can use Firebase features
+                                    mAuth.createUserWithEmailAndPassword(email, password)
+                                            .addOnCompleteListener(MainActivity.this, regTask -> {
+                                                if (regTask.isSuccessful()) {
+                                                    FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                                                    if (firebaseUser != null) {
+                                                        Map<String, Object> userData = new HashMap<>();
+                                                        userData.put("nama", nama);
+                                                        userData.put("email", email);
+                                                        userData.put("role", userRole);
+                                                        mFirestore.collection("users").document(firebaseUser.getUid()).set(userData)
+                                                                .addOnCompleteListener(fsTask -> redirectToDashboard(userRole));
+                                                    } else {
+                                                        redirectToDashboard(userRole);
+                                                    }
+                                                } else {
+                                                    // User might already exist in Firebase Auth or registration failed.
+                                                    // Proceed using MySQL locally
+                                                    redirectToDashboard(userRole);
+                                                }
+                                            });
+                                } else {
+                                    // Both Firebase and MySQL failed. Show original Firebase login error.
+                                    Toast.makeText(MainActivity.this, "Login Gagal: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
+                                // MySQL failed, show original Firebase login error.
+                                Toast.makeText(MainActivity.this, "Login Gagal: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 });
     }
@@ -169,7 +233,15 @@ public class MainActivity extends AppCompatActivity {
                         saveNewUserFirestore(user);
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Session error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
+                    String cachedRole = sp.getString("cached_user_role", "");
+                    if (!cachedRole.isEmpty()) {
+                        redirectToDashboard(cachedRole);
+                    } else {
+                        Toast.makeText(this, "Session error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void saveNewUserFirestore(FirebaseUser user) {
@@ -184,6 +256,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void redirectToDashboard(String role) {
         String finalRole = (role != null) ? role.toLowerCase() : "pengunjung";
+        
+        // Cache user role
+        android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
+        sp.edit().putString("cached_user_role", finalRole).apply();
+        
+        // Sync user to MySQL
+        com.bagus.toko_baju_uas.util.UserSyncUtil.syncUser(this, finalRole);
         
         Intent intent;
         if (Objects.equals(finalRole, "admin")) {

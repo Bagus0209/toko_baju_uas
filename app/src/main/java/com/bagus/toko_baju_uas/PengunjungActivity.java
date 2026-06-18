@@ -76,6 +76,12 @@ public class PengunjungActivity extends AppCompatActivity {
         bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_shop) {
+                if (etSearch != null) {
+                    etSearch.clearFocus();
+                }
+                return true;
+            } else if (itemId == R.id.nav_search) {
+                focusSearchField();
                 return true;
             } else if (itemId == R.id.nav_history) {
                 startActivity(new Intent(this, PaymentHistoryActivity.class));
@@ -92,6 +98,8 @@ public class PengunjungActivity extends AppCompatActivity {
 
         loadProducts();
         setupListeners();
+        
+        handleIntent(getIntent());
     }
 
     private void loadProducts() {
@@ -119,6 +127,16 @@ public class PengunjungActivity extends AppCompatActivity {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { filterProducts(); }
             @Override public void afterTextChanged(Editable s) {}
+        });
+        etSearch.setOnFocusChangeListener((v, hasFocus) -> {
+            BottomNavigationView navigation = findViewById(R.id.bottomNavigation);
+            if (navigation != null) {
+                if (hasFocus) {
+                    navigation.setSelectedItemId(R.id.nav_search);
+                } else {
+                    navigation.setSelectedItemId(R.id.nav_shop);
+                }
+            }
         });
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> filterProducts());
     }
@@ -152,12 +170,43 @@ public class PengunjungActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
+    private void focusSearchField() {
+        if (etSearch != null) {
+            etSearch.requestFocus();
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(etSearch, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+            }
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent != null && intent.getBooleanExtra("focus_search", false)) {
+            focusSearchField();
+            BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setSelectedItemId(R.id.nav_search);
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
         if (bottomNavigation != null) {
-            bottomNavigation.setSelectedItemId(R.id.nav_shop);
+            if (etSearch != null && etSearch.hasFocus()) {
+                bottomNavigation.setSelectedItemId(R.id.nav_search);
+            } else {
+                bottomNavigation.setSelectedItemId(R.id.nav_shop);
+            }
         }
     }
 }

@@ -5,15 +5,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     // Gunakan IP Wi-Fi laptop Anda agar bisa diakses dari HP Fisik maupun Emulator
-    public static final String IP_LAPTOP = "192.168.1.16";
+    public static String IP_LAPTOP = "192.168.56.1";
     
-    private static final String BASE_URL = "http://" + IP_LAPTOP + "/api_tokobaju/";
+    private static String lastUsedIp = "";
     private static Retrofit retrofit;
 
     public static Retrofit getClient() {
-        if (retrofit == null) {
+        if (retrofit == null || !IP_LAPTOP.equals(lastUsedIp)) {
+            lastUsedIp = IP_LAPTOP;
+            String baseUrl = "http://" + IP_LAPTOP + "/toko%20baju/";
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(baseUrl)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

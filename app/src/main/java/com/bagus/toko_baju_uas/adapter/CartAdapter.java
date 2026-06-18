@@ -57,7 +57,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         holder.tvCartName.setText(item.getNamaBarang());
         holder.tvCartQty.setText(String.valueOf(item.getJumlah()));
 
-        Locale localeID = new Locale("in", "ID");
+        Locale localeID = Locale.forLanguageTag("id-ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
         holder.tvCartPrice.setText(formatRupiah.format(item.getHarga()));
 
@@ -69,18 +69,46 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         // Click Listeners with Animations
         holder.btnPlus.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
-            // Simulate quantity increase (UI only for now)
-            // In a real app, call API to increment
+            updateCartQuantity(item.getIdCart(), "increase", holder, item, holder.getBindingAdapterPosition());
         });
 
         holder.btnMinus.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
-            // Simulate quantity decrease (UI only for now)
+            updateCartQuantity(item.getIdCart(), "decrease", holder, item, holder.getBindingAdapterPosition());
         });
 
         holder.btnDelete.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
             deleteFromCart(item.getIdCart(), holder.getBindingAdapterPosition());
+        });
+    }
+
+    private void updateCartQuantity(int idCart, String action, ViewHolder holder, CartModel item, int position) {
+        if (position == RecyclerView.NO_POSITION) return;
+
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.updateCartQty(idCart, action).enqueue(new Callback<BaseResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isStatus()) {
+                        int currentQty = item.getJumlah();
+                        int newQty = action.equals("increase") ? currentQty + 1 : currentQty - 1;
+                        item.setJumlah(newQty);
+                        holder.tvCartQty.setText(String.valueOf(newQty));
+                        if (listener != null) listener.onCartChanged();
+                    } else {
+                        android.widget.Toast.makeText(context, response.body().getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    android.widget.Toast.makeText(context, "Gagal memperbarui jumlah", android.widget.Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
+                android.widget.Toast.makeText(context, "Koneksi gagal: " + t.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

@@ -21,7 +21,7 @@
             android:layout_height="44dp"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Kembali"
+            android:contentDescription="@string/kembali"
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/luxe_black" />
 
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Keranjang Saya"
+            android:text="@string/keranjang_saya"
             android:textColor="@color/luxe_black"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -63,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Metode Pembayaran"
+                android:text="@string/metode_pembayaran"
                 android:textColor="@color/luxe_black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -86,6 +86,7 @@
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
+                        android:contentDescription="@string/todo"
                         android:src="@drawable/ic_orders"
                         app:tint="@color/luxe_gold" />
 
@@ -94,7 +95,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="Virtual Account (BCA/Mandiri)"
+                        android:text="@string/virtual_account_bca_mandiri"
                         android:textColor="@color/luxe_black"
                         android:textSize="14sp" />
 
@@ -111,7 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Ringkasan Pesanan"
+                android:text="@string/ringkasan_pesanan"
                 android:textColor="@color/luxe_black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -137,14 +138,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Subtotal Produk"
+                            android:text="@string/subtotal_produk"
                             android:textColor="@color/luxe_text_secondary" />
                         <TextView
                             android:id="@+id/tvSubtotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:text="Rp 0"
+                            android:text="@string/rp_0"
                             android:textColor="@color/luxe_black" />
                     </RelativeLayout>
 
@@ -155,7 +156,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Biaya Layanan"
+                            android:text="@string/biaya_layanan"
                             android:textColor="@color/luxe_text_secondary" />
                         <TextView
                             android:layout_width="wrap_content"

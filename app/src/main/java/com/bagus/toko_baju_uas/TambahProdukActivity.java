@@ -1,7 +1,14 @@
 package com.bagus.toko_baju_uas;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bagus.toko_baju_uas.api.ApiClient;
@@ -17,7 +24,12 @@ import retrofit2.Response;
 
 public class TambahProdukActivity extends AppCompatActivity {
 
-    private TextInputEditText etNamaBaju, etHarga, etStok, etGambar;
+    private TextInputEditText etNamaBaju, etHarga, etStok;
+    private ImageView ivPreviewGambar;
+    private LinearLayout layoutPlaceholder;
+    private ActivityResultLauncher<String> pickImageLauncher;
+    private Uri selectedImageUri = null;
+    private com.google.android.material.checkbox.MaterialCheckBox cbKonfirmasiTambah;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,40 +39,133 @@ public class TambahProdukActivity extends AppCompatActivity {
         etNamaBaju = findViewById(R.id.etNamaBaju);
         etHarga = findViewById(R.id.etHarga);
         etStok = findViewById(R.id.etStok);
-        etGambar = findViewById(R.id.etGambar);
         MaterialButton btnSimpan = findViewById(R.id.btnSimpan);
+        cbKonfirmasiTambah = findViewById(R.id.cbKonfirmasiTambah);
+
+        com.google.android.material.card.MaterialCardView cardPilihGambar = findViewById(R.id.cardPilihGambar);
+        ivPreviewGambar = findViewById(R.id.ivPreviewGambar);
+        layoutPlaceholder = findViewById(R.id.layoutPlaceholder);
+
+        // Register Image Picker contract
+        pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        selectedImageUri = uri;
+                        ivPreviewGambar.setImageURI(uri);
+                        ivPreviewGambar.setVisibility(View.VISIBLE);
+                        layoutPlaceholder.setVisibility(View.GONE);
+                    }
+                }
+        );
+
+        cardPilihGambar.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            pickImageLauncher.launch("image/*");
+        });
 
         btnSimpan.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
+            if (!cbKonfirmasiTambah.isChecked()) {
+                Toast.makeText(this, "Silakan centang konfirmasi terlebih dahulu!", Toast.LENGTH_SHORT).show();
+                return;
+            }
             String nama = etNamaBaju.getText().toString().trim();
             String hargaStr = etHarga.getText().toString().trim();
             String stokStr = etStok.getText().toString().trim();
-            String gambar = etGambar.getText().toString().trim();
 
             if (nama.isEmpty() || hargaStr.isEmpty() || stokStr.isEmpty()) {
-                Toast.makeText(this, "Nama, Harga, dan Stok wajib diisi!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Nama, Harga, and Stok wajib diisi!", Toast.LENGTH_SHORT).show();
             } else {
                 int harga = Integer.parseInt(hargaStr);
                 int stok = Integer.parseInt(stokStr);
-                if (gambar.isEmpty()) gambar = "default.jpg";
 
-                ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
-                api.tambahBarang(nama, harga, stok, gambar).enqueue(new Callback<BaseResponse>() {
-                    @Override
-                    public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
-                        if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                            Toast.makeText(TambahProdukActivity.this, "Berhasil tambah barang!", Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else {
-                            Toast.makeText(TambahProdukActivity.this, "Gagal tambah barang", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                // Call upload image and save
+                uploadImageAndSave(nama, harga, stok);
+            }
+        });
+    }
 
-                    @Override
-                    public void onFailure(Call<BaseResponse> call, Throwable t) {
-                        Toast.makeText(TambahProdukActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private java.io.File getFileFromUri(Uri uri) {
+        try {
+            java.io.InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream == null) return null;
+            java.io.File tempFile = new java.io.File(getCacheDir(), "upload_temp.jpg");
+            java.io.FileOutputStream outputStream = new java.io.FileOutputStream(tempFile);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+            }
+            outputStream.flush();
+            outputStream.close();
+            inputStream.close();
+            return tempFile;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void uploadImageAndSave(String nama, int harga, int stok) {
+        if (selectedImageUri == null) {
+            saveProductToDatabase(nama, harga, stok, "default.jpg");
+            return;
+        }
+
+        java.io.File file = getFileFromUri(selectedImageUri);
+        if (file == null) {
+            Toast.makeText(this, "Gagal memproses file gambar!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(this, "Mengupload gambar...", Toast.LENGTH_SHORT).show();
+
+        String mimeType = getContentResolver().getType(selectedImageUri);
+        if (mimeType == null) mimeType = "image/jpeg";
+        
+        okhttp3.RequestBody requestFile = okhttp3.RequestBody.create(
+                okhttp3.MediaType.parse(mimeType),
+                file
+        );
+        okhttp3.MultipartBody.Part body = okhttp3.MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.uploadGambar(body).enqueue(new Callback<com.bagus.toko_baju_uas.model.UploadResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<com.bagus.toko_baju_uas.model.UploadResponse> call, @NonNull Response<com.bagus.toko_baju_uas.model.UploadResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
+                    String uploadedFileName = response.body().getFileName();
+                    saveProductToDatabase(nama, harga, stok, uploadedFileName);
+                } else {
+                    String msg = response.body() != null ? response.body().getMessage() : "Gagal upload";
+                    Toast.makeText(TambahProdukActivity.this, "Gagal upload: " + msg, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<com.bagus.toko_baju_uas.model.UploadResponse> call, @NonNull Throwable t) {
+                Toast.makeText(TambahProdukActivity.this, "Gagal upload: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void saveProductToDatabase(String nama, int harga, int stok, String gambar) {
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.tambahBarang(nama, harga, stok, gambar).enqueue(new Callback<BaseResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
+                    Toast.makeText(TambahProdukActivity.this, "Berhasil tambah barang!", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(TambahProdukActivity.this, "Gagal tambah barang", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
+                Toast.makeText(TambahProdukActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

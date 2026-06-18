@@ -8,7 +8,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.bagus.toko_baju_uas"
+        applicationId = "com.MyTokoBaju"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -55,4 +55,8 @@ dependencies {
 
 // Glide untuk memuat gambar baju
     implementation("com.github.bumptech.glide:glide:4.12.0")
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xlint:deprecation")
 }

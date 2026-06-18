@@ -46,7 +46,7 @@ public class BajuUserAdapter extends RecyclerView.Adapter<BajuUserAdapter.ViewHo
         holder.tvStokBaju.setText(context.getString(R.string.stock_format, baju.getStok()));
 
         // Format angka menjadi Rupiah
-        Locale localeID = new Locale("in", "ID");
+        Locale localeID = Locale.forLanguageTag("id-ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
         holder.tvHargaBaju.setText(formatRupiah.format(baju.getHarga()));
 

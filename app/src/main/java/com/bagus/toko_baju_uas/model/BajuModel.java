@@ -17,7 +17,7 @@ public class BajuModel {
     public String getGambar() {
         if (gambar != null && !gambar.trim().isEmpty() && !gambar.startsWith("http")) {
             // Trim() untuk menghapus spasi yang tidak sengaja terketik di database
-            return "http://" + ApiClient.IP_LAPTOP + "/api_tokobaju/images/" + gambar.trim();
+            return "http://" + ApiClient.IP_LAPTOP + "/toko%20baju/images/" + gambar.trim();
         }
         return gambar;
     }

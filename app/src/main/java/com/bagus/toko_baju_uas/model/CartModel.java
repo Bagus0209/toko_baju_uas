@@ -15,10 +15,11 @@ public class CartModel {
     public String getNamaBarang() { return nama_barang; }
     public int getHarga() { return harga; }
     public int getJumlah() { return jumlah; }
+    public void setJumlah(int jumlah) { this.jumlah = jumlah; }
     
     public String getGambar() {
         if (gambar != null && !gambar.trim().isEmpty() && !gambar.startsWith("http")) {
-            return "http://" + ApiClient.IP_LAPTOP + "/api_tokobaju/images/" + gambar.trim();
+            return "http://" + ApiClient.IP_LAPTOP + "/toko%20baju/images/" + gambar.trim();
         }
         return gambar;
     }

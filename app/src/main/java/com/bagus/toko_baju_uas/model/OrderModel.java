@@ -6,10 +6,14 @@ public class OrderModel {
     private int total_harga;
     private String tanggal;
     private String status;
+    private String email;
+    private String alamat;
 
     public int getIdTransaksi() { return id_transaksi; }
     public String getNama() { return nama; }
     public int getTotalHarga() { return total_harga; }
     public String getTanggal() { return tanggal; }
     public String getStatus() { return status; }
+    public String getEmail() { return email; }
+    public String getAlamat() { return alamat; }
 }

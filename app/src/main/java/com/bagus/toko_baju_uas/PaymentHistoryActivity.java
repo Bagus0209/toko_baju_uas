@@ -44,11 +44,13 @@ public class PaymentHistoryActivity extends AppCompatActivity {
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
 
         // Connect Adapter
-        adapter = new HistoryAdapter(this, filteredHistory);
+        adapter = new HistoryAdapter(this, filteredHistory, () -> {
+            com.google.firebase.auth.FirebaseUser u = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+            if (u != null) {
+                loadRealHistoryData(u.getUid());
+            }
+        });
         rvHistory.setAdapter(adapter);
-
-        // Load Mock Data
-        generateMockData();
 
         // Listeners
         btnBack.setOnClickListener(v -> {
@@ -67,11 +69,11 @@ public class PaymentHistoryActivity extends AppCompatActivity {
     }
 
     private void generateMockData() {
-        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/api_tokobaju/images/";
-        allHistory.add(new HistoryItem("16 Juni 2026", "Selesai", "Midnight Velvet Jacket", 850000, baseUrl + "jacket.jpg"));
-        allHistory.add(new HistoryItem("17 Juni 2026", "Berlangsung", "Classic Oxford Shirt", 450000, baseUrl + "shirt.jpg"));
-        allHistory.add(new HistoryItem("12 Mei 2026", "Gagal", "Vintage Denim Jacket", 750000, baseUrl + "denim.jpg"));
-        allHistory.add(new HistoryItem("05 Mei 2026", "Selesai", "Silk Elegance Dress", 1200000, baseUrl + "dress.jpg"));
+        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/toko%20baju/images/";
+        allHistory.add(new HistoryItem(1001, "16 Juni 2026", "Selesai", "Midnight Velvet Jacket", 850000, baseUrl + "jacket.jpg"));
+        allHistory.add(new HistoryItem(1002, "17 Juni 2026", "Berlangsung", "Classic Oxford Shirt", 450000, baseUrl + "shirt.jpg"));
+        allHistory.add(new HistoryItem(1003, "12 Mei 2026", "Gagal", "Vintage Denim Jacket", 750000, baseUrl + "denim.jpg"));
+        allHistory.add(new HistoryItem(1004, "05 Mei 2026", "Selesai", "Silk Elegance Dress", 1200000, baseUrl + "dress.jpg"));
     }
 
     private void filterHistory() {
@@ -100,5 +102,57 @@ public class PaymentHistoryActivity extends AppCompatActivity {
             }
         }
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            loadRealHistoryData(user.getUid());
+        } else {
+            generateMockData();
+            filterHistory();
+        }
+    }
+
+    private void loadRealHistoryData(String uid) {
+        com.bagus.toko_baju_uas.api.ApiInterface api = com.bagus.toko_baju_uas.api.ApiClient.getClient().create(com.bagus.toko_baju_uas.api.ApiInterface.class);
+        api.getHistory(uid).enqueue(new retrofit2.Callback<com.bagus.toko_baju_uas.model.HistoryResponse>() {
+            @Override
+            public void onResponse(@androidx.annotation.NonNull retrofit2.Call<com.bagus.toko_baju_uas.model.HistoryResponse> call, @androidx.annotation.NonNull retrofit2.Response<com.bagus.toko_baju_uas.model.HistoryResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
+                    allHistory.clear();
+                    List<com.bagus.toko_baju_uas.model.HistoryResponse.Data> dataList = response.body().getData();
+                    if (dataList != null) {
+                        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/toko%20baju/images/";
+                        for (com.bagus.toko_baju_uas.model.HistoryResponse.Data tx : dataList) {
+                            String label = "Pesanan #" + tx.id_transaksi;
+                            String img = baseUrl + "default.jpg";
+                            allHistory.add(new HistoryItem(
+                                    tx.id_transaksi,
+                                    tx.tanggal,
+                                    tx.status,
+                                    label,
+                                    tx.total_harga,
+                                    img
+                            ));
+                        }
+                    }
+                    filterHistory();
+                } else {
+                    Toast.makeText(PaymentHistoryActivity.this, "Gagal memuat riwayat", Toast.LENGTH_SHORT).show();
+                    generateMockData();
+                    filterHistory();
+                }
+            }
+
+            @Override
+            public void onFailure(@androidx.annotation.NonNull retrofit2.Call<com.bagus.toko_baju_uas.model.HistoryResponse> call, @androidx.annotation.NonNull Throwable t) {
+                Toast.makeText(PaymentHistoryActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                generateMockData();
+                filterHistory();
+            }
+        });
     }
 }

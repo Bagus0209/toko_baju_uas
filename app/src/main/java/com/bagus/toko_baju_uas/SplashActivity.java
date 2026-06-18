@@ -18,6 +18,21 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Initialize Dark Mode from preferences
+        android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
+        boolean isDarkMode = sp.getBoolean("dark_mode", false);
+        if (isDarkMode) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
+        // Initialize Server IP from preferences
+        String savedIp = sp.getString("server_ip", "");
+        if (!savedIp.isEmpty()) {
+            com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP = savedIp;
+        }
+
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity_splash);
 
@@ -35,10 +50,18 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void checkUserRoleAndRedirect(FirebaseUser user) {
+        android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
+        String cachedRole = sp.getString("cached_user_role", "");
+
         FirebaseFirestore.getInstance().collection("users").document(user.getUid()).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         String role = doc.getString("role");
+                        sp.edit().putString("cached_user_role", role.toLowerCase()).apply();
+                        
+                        // Sync user to MySQL
+                        com.bagus.toko_baju_uas.util.UserSyncUtil.syncUser(SplashActivity.this, role);
+                        
                         Intent intent;
                         if ("admin".equalsIgnoreCase(role)) {
                             intent = new Intent(SplashActivity.this, AdminActivity.class);
@@ -48,16 +71,43 @@ public class SplashActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        // Jika data di firestore tidak ada, paksa login ulang
-                        FirebaseAuth.getInstance().signOut();
-                        startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                        finish();
+                        if (!cachedRole.isEmpty()) {
+                            // Sync user to MySQL using cached role
+                            com.bagus.toko_baju_uas.util.UserSyncUtil.syncUser(SplashActivity.this, cachedRole);
+                            
+                            Intent intent;
+                            if ("admin".equalsIgnoreCase(cachedRole)) {
+                                intent = new Intent(SplashActivity.this, AdminActivity.class);
+                            } else {
+                                intent = new Intent(SplashActivity.this, PengunjungActivity.class);
+                            }
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            FirebaseAuth.getInstance().signOut();
+                            startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                            finish();
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Gagal memvalidasi sesi", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                    finish();
+                    if (!cachedRole.isEmpty()) {
+                        // Sync user to MySQL using cached role
+                        com.bagus.toko_baju_uas.util.UserSyncUtil.syncUser(SplashActivity.this, cachedRole);
+                        
+                        Intent intent;
+                        if ("admin".equalsIgnoreCase(cachedRole)) {
+                            intent = new Intent(SplashActivity.this, AdminActivity.class);
+                        } else {
+                            intent = new Intent(SplashActivity.this, PengunjungActivity.class);
+                        }
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Gagal memvalidasi sesi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                        finish();
+                    }
                 });
     }
 }

@@ -24,7 +24,8 @@
             android:exported="false" />
         <activity
             android:name=".AccountActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".TransactionsAdminActivity"
             android:exported="false" />
@@ -51,7 +52,8 @@
             android:exported="false" />
         <activity
             android:name=".PengunjungActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".AdminActivity"
             android:exported="false" />

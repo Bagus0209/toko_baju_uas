@@ -38,6 +38,12 @@ public interface ApiInterface {
             @Field("gambar") String gambar
     );
 
+    @retrofit2.http.Multipart
+    @POST("upload_gambar.php")
+    Call<com.bagus.toko_baju_uas.model.UploadResponse> uploadGambar(
+            @retrofit2.http.Part okhttp3.MultipartBody.Part image
+    );
+
     @GET("get_barang.php")
     Call<BarangResponse> getBarang();
 
@@ -78,10 +84,30 @@ public interface ApiInterface {
     );
 
     @FormUrlEncoded
+    @POST("update_cart_qty.php")
+    Call<BaseResponse> updateCartQty(
+            @Field("id_cart") int idCart,
+            @Field("action") String action
+    );
+
+    @FormUrlEncoded
     @POST("checkout.php")
     Call<BaseResponse> checkout(
             @Field("id_user") String uid,
-            @Field("total_harga") int totalHarga
+            @Field("total_harga") int totalHarga,
+            @Field("alamat") String alamat
+    );
+
+    @FormUrlEncoded
+    @POST("update_transaksi.php")
+    Call<BaseResponse> updateTransaksi(
+            @Field("id_transaksi") int idTransaksi,
+            @Field("status") String status
+    );
+
+    @GET("get_history.php")
+    Call<com.bagus.toko_baju_uas.model.HistoryResponse> getHistory(
+            @retrofit2.http.Query("id_user") String uid
     );
 
     // ADMIN SERVICES
@@ -96,4 +122,13 @@ public interface ApiInterface {
 
     @GET("admin_service.php?action=get_customers")
     Call<com.bagus.toko_baju_uas.model.UsersResponse> getAdminCustomers();
+
+    @FormUrlEncoded
+    @POST("sync_user.php")
+    Call<BaseResponse> syncUser(
+            @Field("uid_firebase") String uid,
+            @Field("name") String name,
+            @Field("email") String email,
+            @Field("role") String role
+    );
 }

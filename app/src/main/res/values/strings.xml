@@ -10,4 +10,13 @@
     <string name="stock_format">Stok: %1$d</string>
     <string name="buy_toast_format">Anda memilih untuk membeli: %1$s</string>
     <string name="total_price_format">Total: %1$s</string>
+    <string name="keranjang_saya">Keranjang Saya</string>
+    <string name="kembali">Kembali</string>
+    <string name="metode_pembayaran">Metode Pembayaran</string>
+    <string name="virtual_account_bca_mandiri">Virtual Account (BCA/Mandiri)</string>
+    <string name="ringkasan_pesanan">Ringkasan Pesanan</string>
+    <string name="todo">TODO</string>
+    <string name="rp_0">Rp 0</string>
+    <string name="subtotal_produk">Subtotal Produk</string>
+    <string name="biaya_layanan">Biaya Layanan</string>
 </resources>

@@ -170,8 +170,9 @@
         android:layout_alignParentBottom="true"
         android:background="@color/white"
         android:elevation="8dp"
-        app:itemIconTint="@color/luxe_black"
-        app:itemTextColor="@color/luxe_black"
+        app:itemActiveIndicatorStyle="@null"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 

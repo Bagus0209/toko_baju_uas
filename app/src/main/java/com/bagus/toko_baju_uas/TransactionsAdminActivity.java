@@ -54,7 +54,7 @@ public class TransactionsAdminActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<OrderResponse> call, @NonNull Response<OrderResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
                     list = response.body().getData();
-                    adapter = new TransactionsAdminAdapter(TransactionsAdminActivity.this, list);
+                    adapter = new TransactionsAdminAdapter(TransactionsAdminActivity.this, list, () -> loadOrders());
                     rvOrders.setAdapter(adapter);
                 } else {
                     Toast.makeText(TransactionsAdminActivity.this, "Gagal ambil data", Toast.LENGTH_SHORT).show();

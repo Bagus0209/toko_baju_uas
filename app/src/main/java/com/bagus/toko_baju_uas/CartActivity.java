@@ -73,7 +73,35 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         btnCheckout.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
             if (!cartList.isEmpty()) {
-                prosesCheckout();
+                // Show shipping address input dialog
+                android.widget.EditText inputAlamat = new android.widget.EditText(this);
+                inputAlamat.setHint("Masukkan alamat lengkap pengiriman");
+                android.content.SharedPreferences spSettings = getSharedPreferences("app_settings", MODE_PRIVATE);
+                String savedAddress = spSettings.getString("user_default_address", "Jl. Luxe Threads No. 8, Jakarta Pusat");
+                inputAlamat.setText(savedAddress);
+
+                android.widget.FrameLayout container = new android.widget.FrameLayout(this);
+                android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+                int margin = (int) (16 * getResources().getDisplayMetrics().density);
+                params.setMargins(margin, margin / 2, margin, margin / 2);
+                inputAlamat.setLayoutParams(params);
+                container.addView(inputAlamat);
+
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Konfirmasi Alamat Pengiriman")
+                        .setMessage("Silakan lengkapi alamat pengiriman Anda:")
+                        .setView(container)
+                        .setPositiveButton("Lanjutkan Pembayaran", (dialog, which) -> {
+                            String alamat = inputAlamat.getText().toString().trim();
+                            if (alamat.isEmpty()) {
+                                Toast.makeText(this, "Alamat wajib diisi!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                prosesCheckout(alamat);
+                            }
+                        })
+                        .setNegativeButton("Batal", null)
+                        .show();
             } else {
                 Toast.makeText(this, "Keranjang belanja masih kosong!", Toast.LENGTH_SHORT).show();
             }
@@ -128,7 +156,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         int serviceFee = subtotal > 0 ? 2000 : 0;
         totalBayar = subtotal + serviceFee;
 
-        Locale localeID = new Locale("in", "ID");
+        Locale localeID = Locale.forLanguageTag("id-ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
         
         if (tvSubtotal != null) tvSubtotal.setText(formatRupiah.format(subtotal));
@@ -147,19 +175,28 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         }
     }
 
-    private void prosesCheckout() {
+    private void prosesCheckout(String alamat) {
         String uid = FirebaseAuth.getInstance().getUid();
         if (uid == null) return;
 
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
-        api.checkout(uid, totalBayar).enqueue(new Callback<BaseResponse>() {
+        api.checkout(uid, totalBayar, alamat).enqueue(new Callback<BaseResponse>() {
             @Override
             public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    // Berpindah ke halaman sukses pembayaran
-                    Intent intent = new Intent(CartActivity.this, CheckoutSuccessActivity.class);
-                    startActivity(intent);
-                    finish();
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isStatus()) {
+                        // Pass details to Success screen to print receipt
+                        Intent intent = new Intent(CartActivity.this, CheckoutSuccessActivity.class);
+                        String itemsJson = new com.google.gson.Gson().toJson(cartList);
+                        intent.putExtra("purchase_items_json", itemsJson);
+                        intent.putExtra("total_bayar", totalBayar);
+                        intent.putExtra("alamat", alamat);
+                        
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(CartActivity.this, response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     Toast.makeText(CartActivity.this, "Gagal memproses pembayaran.", Toast.LENGTH_SHORT).show();
                 }
@@ -167,7 +204,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                Toast.makeText(CartActivity.this, "Koneksi ke server gagal.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CartActivity.this, "Koneksi ke server gagal: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -53,7 +53,7 @@ public class BajuCustomerAdapter extends RecyclerView.Adapter<BajuCustomerAdapte
         holder.tvProductName.setText(baju.getNamaBarang());
 
         // Format price to Rupiah
-        Locale localeID = new Locale("in", "ID");
+        Locale localeID = Locale.forLanguageTag("id-ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
         holder.tvProductPrice.setText(formatRupiah.format(baju.getHarga()));
 
