@@ -43,6 +43,37 @@ public class AccountActivity extends AppCompatActivity {
             logout();
         });
 
+        // Settings Click Listeners
+        findViewById(R.id.btnEditProfileTop).setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, EditProfileActivity.class));
+        });
+
+        findViewById(R.id.btnPersonalInfo).setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, PersonalInformationActivity.class));
+        });
+
+        findViewById(R.id.btnSecurity).setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, SecurityActivity.class));
+        });
+
+        findViewById(R.id.btnMyOrders).setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, PaymentHistoryActivity.class));
+        });
+
+        findViewById(R.id.btnShippingAddress).setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, ShippingAddressActivity.class));
+        });
+
+        findViewById(R.id.btnPaymentMethods).setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, PaymentMethodsActivity.class));
+        });
+
         BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
         bottomNavigation.setSelectedItemId(R.id.nav_profile);
         bottomNavigation.setOnItemSelectedListener(item -> {

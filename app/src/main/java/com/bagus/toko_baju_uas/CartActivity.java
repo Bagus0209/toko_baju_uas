@@ -149,25 +149,33 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
 
     private void prosesCheckout() {
         String uid = FirebaseAuth.getInstance().getUid();
-        if (uid == null) return;
+        if (uid == null) {
+            Toast.makeText(this, "Session expired, please login again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         api.checkout(uid, totalBayar).enqueue(new Callback<BaseResponse>() {
             @Override
             public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    // Berpindah ke halaman sukses pembayaran
-                    Intent intent = new Intent(CartActivity.this, CheckoutSuccessActivity.class);
-                    startActivity(intent);
-                    finish();
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isStatus()) {
+                        // Success: Move to success screen
+                        // On the server side, checkout.php should clear the cart
+                        Intent intent = new Intent(CartActivity.this, CheckoutSuccessActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(CartActivity.this, "Checkout Failed: " + response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 } else {
-                    Toast.makeText(CartActivity.this, "Gagal memproses pembayaran.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CartActivity.this, "Server Error (" + response.code() + ").", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                Toast.makeText(CartActivity.this, "Koneksi ke server gagal.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CartActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

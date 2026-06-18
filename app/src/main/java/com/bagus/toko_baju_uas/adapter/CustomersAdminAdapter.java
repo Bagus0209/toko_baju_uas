@@ -1,5 +1,6 @@
 package com.bagus.toko_baju_uas.adapter;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,28 @@ public class CustomersAdminAdapter extends RecyclerView.Adapter<CustomersAdminAd
         UserModel user = list.get(position);
         holder.tvName.setText(user.getUsername());
         holder.tvEmail.setText(user.getEmail());
+        
+        // Show Customer ID
+        holder.tvCustomerId.setText("ID: #" + user.getIdUser());
+
+        // Set Avatar Initial
+        if (user.getUsername() != null && !user.getUsername().isEmpty()) {
+            holder.tvAvatarInitial.setText(user.getUsername().substring(0, 1).toUpperCase());
+        }
+
+        // Set Role Badge
+        if (user.getRole() != null) {
+            String role = user.getRole().toUpperCase();
+            holder.tvRoleBadge.setText(role);
+            
+            if (role.equals("ADMIN")) {
+                holder.tvRoleBadge.setBackgroundResource(R.drawable.bg_pill_status_paid);
+                holder.tvRoleBadge.setTextColor(Color.parseColor("#854D0E")); // Dark Gold
+            } else {
+                holder.tvRoleBadge.setBackgroundResource(R.drawable.bg_pill_gray);
+                holder.tvRoleBadge.setTextColor(Color.parseColor("#374151")); // Gray
+            }
+        }
     }
 
     @Override
@@ -41,11 +64,14 @@ public class CustomersAdminAdapter extends RecyclerView.Adapter<CustomersAdminAd
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvEmail;
+        TextView tvName, tvEmail, tvAvatarInitial, tvRoleBadge, tvCustomerId;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvCustName);
             tvEmail = itemView.findViewById(R.id.tvCustEmail);
+            tvAvatarInitial = itemView.findViewById(R.id.tvAvatarInitial);
+            tvRoleBadge = itemView.findViewById(R.id.tvRoleBadge);
+            tvCustomerId = itemView.findViewById(R.id.tvCustomerId);
         }
     }
 }

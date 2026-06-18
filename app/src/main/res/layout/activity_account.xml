@@ -73,6 +73,7 @@
                     android:textSize="14sp" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditProfileTop"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -111,10 +112,14 @@
 
                     <!-- Personal Information -->
                     <LinearLayout
+                        android:id="@+id/btnPersonalInfo"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="16dp">
 
                         <ImageView
@@ -147,10 +152,14 @@
 
                     <!-- Security -->
                     <LinearLayout
+                        android:id="@+id/btnSecurity"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="16dp">
 
                         <ImageView
@@ -204,10 +213,14 @@
 
                     <!-- My Orders -->
                     <LinearLayout
+                        android:id="@+id/btnMyOrders"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="16dp">
 
                         <ImageView
@@ -240,10 +253,14 @@
 
                     <!-- Shipping Addresses -->
                     <LinearLayout
+                        android:id="@+id/btnShippingAddress"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="16dp">
 
                         <ImageView
@@ -276,10 +293,14 @@
 
                     <!-- Payment Methods -->
                     <LinearLayout
+                        android:id="@+id/btnPaymentMethods"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="16dp">
 
                         <ImageView

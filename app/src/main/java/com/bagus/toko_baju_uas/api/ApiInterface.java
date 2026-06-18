@@ -38,6 +38,15 @@ public interface ApiInterface {
             @Field("gambar") String gambar
     );
 
+    @retrofit2.http.Multipart
+    @POST("tambah_barang_v2.php")
+    Call<BaseResponse> tambahBarangV2(
+            @retrofit2.http.Part("nama_barang") okhttp3.RequestBody nama,
+            @retrofit2.http.Part("harga") okhttp3.RequestBody harga,
+            @retrofit2.http.Part("stok") okhttp3.RequestBody stok,
+            @retrofit2.http.Part okhttp3.MultipartBody.Part gambar
+    );
+
     @GET("get_barang.php")
     Call<BarangResponse> getBarang();
 
@@ -94,6 +103,24 @@ public interface ApiInterface {
     @GET("admin_service.php?action=get_orders")
     Call<com.bagus.toko_baju_uas.model.OrderResponse> getAdminOrders();
 
+    @FormUrlEncoded
+    @POST("admin_service.php?action=update_order_status")
+    Call<BaseResponse> updateOrderStatus(
+            @Field("id_transaksi") int idTransaksi,
+            @Field("status") String status
+    );
+
+    @FormUrlEncoded
+    @POST("admin_service.php?action=delete_order")
+    Call<BaseResponse> deleteOrder(
+            @Field("id_transaksi") int idTransaksi
+    );
+
     @GET("admin_service.php?action=get_customers")
     Call<com.bagus.toko_baju_uas.model.UsersResponse> getAdminCustomers();
+
+    @GET("admin_service.php?action=get_history")
+    Call<com.bagus.toko_baju_uas.model.OrderResponse> getUserHistory(
+            @retrofit2.http.Query("id_user") String uid
+    );
 }

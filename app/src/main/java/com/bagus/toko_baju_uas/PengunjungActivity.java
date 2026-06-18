@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -58,6 +59,17 @@ public class PengunjungActivity extends AppCompatActivity {
         RecyclerView rvProducts = findViewById(R.id.rvProducts);
         com.google.android.material.floatingactionbutton.FloatingActionButton fabBag = findViewById(R.id.fabBag);
         BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
+        View cardAdminReturn = findViewById(R.id.cardAdminReturn);
+        com.google.android.material.button.MaterialButton btnReturnAdmin = findViewById(R.id.btnReturnAdmin);
+
+        // Check if viewing as Admin
+        if (getIntent().getBooleanExtra("from_admin", false)) {
+            cardAdminReturn.setVisibility(View.VISIBLE);
+            btnReturnAdmin.setOnClickListener(v -> {
+                AnimationUtil.animateButtonClick(v);
+                finish(); // Back to AdminActivity
+            });
+        }
 
         // Adapter Setup
         adapter = new BajuCustomerAdapter(this, filteredProducts);
@@ -156,6 +168,17 @@ public class PengunjungActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
+        View cardAdminReturn = findViewById(R.id.cardAdminReturn);
+        com.google.android.material.button.MaterialButton btnReturnAdmin = findViewById(R.id.btnReturnAdmin);
+
+        // Check if viewing as Admin
+        if (getIntent().getBooleanExtra("from_admin", false)) {
+            cardAdminReturn.setVisibility(View.VISIBLE);
+            btnReturnAdmin.setOnClickListener(v -> {
+                AnimationUtil.animateButtonClick(v);
+                finish(); // Back to AdminActivity
+            });
+        }
         if (bottomNavigation != null) {
             bottomNavigation.setSelectedItemId(R.id.nav_shop);
         }
