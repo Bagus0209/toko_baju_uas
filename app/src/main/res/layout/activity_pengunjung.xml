@@ -69,14 +69,53 @@
                 android:orientation="vertical"
                 android:paddingHorizontal="24dp">
 
-                <TextView
-                    android:id="@+id/tvHello"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hello,\nCustomer"
-                    android:textColor="@color/luxe_black"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/tvHello"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hello,\nCustomer"
+                        android:textColor="@color/luxe_black"
+                        android:textSize="36sp"
+                        android:textStyle="bold" />
+
+                    <!-- Integrated History Entry -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnQuickHistory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="2dp"
+                        app:strokeWidth="0dp"
+                        android:clickable="true"
+                        android:focusable="true">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="8dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_history"
+                                app:tint="@color/luxe_gold"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="History"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/luxe_black"/>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </RelativeLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -86,6 +125,50 @@
                     android:textColor="@color/luxe_text_secondary"
                     android:textSize="16sp" />
             </LinearLayout>
+
+            <!-- Ongoing Order Integration -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOngoingOrder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#FFFBEB"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#FEF3C7"
+                app:strokeWidth="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_local_shipping"
+                        app:tint="#D97706"/>
+                    <TextView
+                        android:id="@+id/tvOngoingStatus"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="You have 1 order in process"
+                        android:textColor="#92400E"
+                        android:textSize="13sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="VIEW"
+                        android:textColor="#D97706"
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Search Bar -->
             <com.google.android.material.textfield.TextInputLayout

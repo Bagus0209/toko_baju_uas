@@ -1,6 +1,7 @@
 package com.bagus.toko_baju_uas.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,10 +49,25 @@ public class TransactionsAdminAdapter extends RecyclerView.Adapter<TransactionsA
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         OrderModel order = list.get(position);
 
-        holder.tvOrderId.setText("ORD-" + order.getIdTransaksi());
-        holder.tvOrderDate.setText(order.getTanggal());
+        // Professional Order ID and Date
+        holder.tvOrderId.setText("ORD-ID: #" + order.getIdTransaksi());
+        holder.tvOrderDate.setText("Transaction Date: " + order.getTanggal());
+        
+        // Customer Info
         holder.tvCustomerName.setText(order.getNama());
-        holder.tvStatusBadge.setText(order.getStatus());
+        
+        // Premium Status Badge
+        String status = order.getStatus() != null ? order.getStatus() : "Berlangsung";
+        holder.tvStatusBadge.setText(status.toUpperCase());
+        
+        // Apply status colors
+        if (status.equalsIgnoreCase("selesai")) {
+            holder.tvStatusBadge.setTextColor(Color.parseColor("#10B981")); // Green
+        } else if (status.equalsIgnoreCase("berlangsung")) {
+            holder.tvStatusBadge.setTextColor(Color.parseColor("#F59E0B")); // Amber
+        } else {
+            holder.tvStatusBadge.setTextColor(Color.parseColor("#EF4444")); // Red
+        }
 
         Locale localeID = new Locale("in", "ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);

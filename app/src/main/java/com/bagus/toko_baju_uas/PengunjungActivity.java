@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -20,8 +21,10 @@ import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bagus.toko_baju_uas.model.BarangResponse;
+import com.bagus.toko_baju_uas.model.OrderResponse;
 import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
@@ -61,6 +64,21 @@ public class PengunjungActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
         View cardAdminReturn = findViewById(R.id.cardAdminReturn);
         com.google.android.material.button.MaterialButton btnReturnAdmin = findViewById(R.id.btnReturnAdmin);
+
+        // Integrated Components
+        View btnQuickHistory = findViewById(R.id.btnQuickHistory);
+        View cardOngoingOrder = findViewById(R.id.cardOngoingOrder);
+        TextView tvOngoingStatus = findViewById(R.id.tvOngoingStatus);
+
+        btnQuickHistory.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, PaymentHistoryActivity.class));
+        });
+
+        cardOngoingOrder.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(this, PaymentHistoryActivity.class));
+        });
 
         // Check if viewing as Admin
         if (getIntent().getBooleanExtra("from_admin", false)) {
@@ -104,6 +122,38 @@ public class PengunjungActivity extends AppCompatActivity {
 
         loadProducts();
         setupListeners();
+        checkOngoingOrders();
+    }
+
+    private void checkOngoingOrders() {
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid == null) return;
+
+        View cardOngoingOrder = findViewById(R.id.cardOngoingOrder);
+        TextView tvOngoingStatus = findViewById(R.id.tvOngoingStatus);
+
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.getUserHistory(uid).enqueue(new retrofit2.Callback<OrderResponse>() {
+            @Override
+            public void onResponse(@NonNull retrofit2.Call<OrderResponse> call, @NonNull retrofit2.Response<OrderResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
+                    int count = 0;
+                    for (com.bagus.toko_baju_uas.model.OrderModel order : response.body().getData()) {
+                        if ("berlangsung".equalsIgnoreCase(order.getStatus())) {
+                            count++;
+                        }
+                    }
+                    if (count > 0) {
+                        cardOngoingOrder.setVisibility(View.VISIBLE);
+                        tvOngoingStatus.setText("You have " + count + " order(s) in process");
+                    } else {
+                        cardOngoingOrder.setVisibility(View.GONE);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(@NonNull retrofit2.Call<OrderResponse> call, @NonNull Throwable t) {}
+        });
     }
 
     private void loadProducts() {
@@ -182,5 +232,6 @@ public class PengunjungActivity extends AppCompatActivity {
         if (bottomNavigation != null) {
             bottomNavigation.setSelectedItemId(R.id.nav_shop);
         }
+        checkOngoingOrders();
     }
 }

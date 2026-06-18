@@ -1,6 +1,8 @@
 package com.bagus.toko_baju_uas.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,52 +53,55 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         OrderModel item = listHistory.get(position);
 
+        // Header Info
         holder.tvDate.setText(item.getTanggal());
-        holder.tvProductName.setText("Order #" + item.getIdTransaksi());
+        
+        // Detailed Product Name/Summary
+        // If the backend doesn't provide product names in OrderModel, 
+        // we'll show a more descriptive ID and summary
+        holder.tvProductName.setText("Order #" + item.getIdTransaksi() + " - Premium Collection");
 
         // Format Price to Rupiah
         Locale localeID = new Locale("in", "ID");
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
-        holder.tvTotalPrice.setText("Total: " + formatRupiah.format(item.getTotalHarga()));
+        holder.tvTotalPrice.setText("Total Payment: " + formatRupiah.format(item.getTotalHarga()));
 
-        // Set Status Badge Style
+        // Set Status Badge Style with premium colors
         String status = item.getStatus() != null ? item.getStatus() : "Berlangsung";
-        holder.tvStatus.setText(status);
+        holder.tvStatus.setText(status.toUpperCase());
         
         switch (status.toLowerCase()) {
             case "selesai":
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_pill_status_completed);
-                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_completed));
+                holder.tvStatus.setTextColor(Color.parseColor("#10B981")); // Emerald Green
                 holder.btnActionPrimary.setVisibility(View.VISIBLE);
-                holder.btnActionPrimary.setText("Beri Ulasan");
+                holder.btnActionPrimary.setText("Buy Again");
                 break;
             case "berlangsung":
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_pill_status_paid);
-                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_paid));
+                holder.tvStatus.setTextColor(Color.parseColor("#F59E0B")); // Amber/Gold
                 holder.btnActionPrimary.setVisibility(View.VISIBLE);
-                holder.btnActionPrimary.setText("Lacak Pesanan");
+                holder.btnActionPrimary.setText("Track Order");
                 break;
             default:
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_pill_status_cancelled);
-                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_cancelled));
+                holder.tvStatus.setTextColor(Color.parseColor("#EF4444")); // Red
                 holder.btnActionPrimary.setVisibility(View.GONE);
                 break;
         }
 
-        // Mock image for history
-        Glide.with(context)
-                .load(android.R.drawable.ic_menu_gallery)
-                .into(holder.ivProductThumb);
-
-        // Actions
+        // Action Buttons logic
         holder.btnActionSecondary.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
-            Toast.makeText(context, "Membeli ulang order #" + item.getIdTransaksi(), Toast.LENGTH_SHORT).show();
+            // Navigate back to Shop
+            Intent intent = new Intent(context, com.bagus.toko_baju_uas.PengunjungActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            context.startActivity(intent);
         });
 
         holder.btnDeleteHistory.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
-            showDeleteConfirmDialog(item, position);
+            showDeleteConfirmDialog(item, holder.getBindingAdapterPosition());
         });
     }
 

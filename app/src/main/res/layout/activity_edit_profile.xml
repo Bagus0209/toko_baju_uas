@@ -59,6 +59,7 @@
                 app:tint="@color/luxe_black" />
 
             <TextView
+                android:id="@+id/tvChangePhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -66,7 +67,10 @@
                 android:text="Change Photo"
                 android:textColor="@color/luxe_gold"
                 android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

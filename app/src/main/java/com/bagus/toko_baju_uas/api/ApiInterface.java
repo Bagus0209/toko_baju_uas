@@ -123,4 +123,11 @@ public interface ApiInterface {
     Call<com.bagus.toko_baju_uas.model.OrderResponse> getUserHistory(
             @retrofit2.http.Query("id_user") String uid
     );
+
+    @retrofit2.http.Multipart
+    @POST("update_profile_pic.php")
+    Call<BaseResponse> updateProfilePic(
+            @retrofit2.http.Part("uid_firebase") okhttp3.RequestBody uid,
+            @retrofit2.http.Part okhttp3.MultipartBody.Part image
+    );
 }
