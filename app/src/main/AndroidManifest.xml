@@ -4,6 +4,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -56,6 +61,30 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".AdminActivity"
+            android:exported="false" />
+        <activity
+            android:name=".InventoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SecurityActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HelpCenterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PersonalInformationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ShippingAddressActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PaymentMethodsActivity"
             android:exported="false" />
         <activity
             android:name=".SplashActivity"

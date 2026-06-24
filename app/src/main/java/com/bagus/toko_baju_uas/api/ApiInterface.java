@@ -131,4 +131,11 @@ public interface ApiInterface {
             @Field("email") String email,
             @Field("role") String role
     );
+
+    @retrofit2.http.Multipart
+    @POST("update_profile_pic.php")
+    Call<BaseResponse> updateProfilePic(
+            @retrofit2.http.Part("uid_firebase") okhttp3.RequestBody uid,
+            @retrofit2.http.Part okhttp3.MultipartBody.Part image
+    );
 }

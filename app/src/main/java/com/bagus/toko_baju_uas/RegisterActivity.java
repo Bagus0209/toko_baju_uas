@@ -120,9 +120,15 @@ public class RegisterActivity extends AppCompatActivity {
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         api.register(uid, name, email, password, role).enqueue(new Callback<BaseResponse>() {
             @Override
-            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {}
+            public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
+                if (!response.isSuccessful() || response.body() == null || !response.body().isStatus()) {
+                    Toast.makeText(RegisterActivity.this, "Peringatan: Gagal menyimpan data ke MySQL. Cek database Anda.", Toast.LENGTH_LONG).show();
+                }
+            }
             @Override
-            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {}
+            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
+                Toast.makeText(RegisterActivity.this, "Kesalahan Jaringan: Gagal menghubungkan ke MySQL server.", Toast.LENGTH_LONG).show();
+            }
         });
     }
 

@@ -82,16 +82,20 @@ public class BajuCustomerAdapter extends RecyclerView.Adapter<BajuCustomerAdapte
         api.addToCart(uid, baju.getIdBarang(), 1).enqueue(new Callback<BaseResponse>() {
             @Override
             public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    Toast.makeText(context, "Berhasil tambah ke keranjang", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isStatus()) {
+                        Toast.makeText(context, "Berhasil tambah ke keranjang", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Gagal: " + response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 } else {
-                    Toast.makeText(context, "Gagal tambah ke keranjang", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Server Error (" + response.code() + ")", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                Toast.makeText(context, "Koneksi gagal: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Koneksi gagal: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
