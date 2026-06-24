@@ -124,4 +124,38 @@
         android:paddingTop="16dp"
         android:paddingBottom="16dp" />
 
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/layoutEmptyState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_bag"
+            app:tint="@color/luxe_gray" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Belum ada transaksi"
+            android:textColor="@color/luxe_text_secondary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Riwayat belanja Anda akan muncul di sini."
+            android:textColor="@color/luxe_text_secondary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
 </RelativeLayout>

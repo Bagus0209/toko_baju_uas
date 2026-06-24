@@ -132,6 +132,13 @@ public interface ApiInterface {
             @Field("role") String role
     );
 
+    @FormUrlEncoded
+    @POST("update_onboarding.php")
+    Call<BaseResponse> updateOnboarding(
+            @Field("uid_firebase") String uid,
+            @Field("action") String action
+    );
+
     @retrofit2.http.Multipart
     @POST("update_profile_pic.php")
     Call<BaseResponse> updateProfilePic(

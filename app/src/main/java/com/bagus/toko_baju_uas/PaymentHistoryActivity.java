@@ -1,27 +1,39 @@
 package com.bagus.toko_baju_uas;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bagus.toko_baju_uas.adapter.HistoryAdapter;
 import com.bagus.toko_baju_uas.adapter.HistoryAdapter.HistoryItem;
+import com.bagus.toko_baju_uas.api.ApiClient;
+import com.bagus.toko_baju_uas.api.ApiInterface;
+import com.bagus.toko_baju_uas.model.HistoryResponse;
 import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class PaymentHistoryActivity extends AppCompatActivity {
 
-    private ImageButton btnBack, btnNotif;
     private ChipGroup chipGroup;
     private RecyclerView rvHistory;
+    private LinearLayout layoutEmptyState;
     
     private HistoryAdapter adapter;
     private final List<HistoryItem> allHistory = new ArrayList<>();
@@ -30,53 +42,45 @@ public class PaymentHistoryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.setContentView(R.layout.activity_payment_history);
+        setContentView(R.layout.activity_payment_history);
 
-        btnBack = findViewById(R.id.btnBack);
-        btnNotif = findViewById(R.id.btnNotif);
-        chipGroup = findViewById(R.id.tabScroll).findViewById(R.id.chipGroup); // ChipGroup is direct child of ScrollView
-        if (chipGroup == null) {
-            chipGroup = findViewById(R.id.chipGroup);
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        ImageButton btnNotif = findViewById(R.id.btnNotif);
+        layoutEmptyState = findViewById(R.id.layoutEmptyState); // Pastikan ID ini ada di XML
+        
+        chipGroup = findViewById(R.id.chipGroup);
+        if (chipGroup == null && findViewById(R.id.tabScroll) != null) {
+            chipGroup = findViewById(R.id.tabScroll).findViewById(R.id.chipGroup);
         }
+        
         rvHistory = findViewById(R.id.rvHistory);
-
-        // Set LayoutManager
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
 
-        // Connect Adapter
-        adapter = new HistoryAdapter(this, filteredHistory, () -> {
-            com.google.firebase.auth.FirebaseUser u = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
-            if (u != null) {
-                loadRealHistoryData(u.getUid());
-            }
-        });
+        adapter = new HistoryAdapter(this, filteredHistory, this::refreshData);
         rvHistory.setAdapter(adapter);
 
-        // Listeners
         btnBack.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
             finish();
         });
-        btnNotif.setOnClickListener(v -> {
-            AnimationUtil.animateButtonClick(v);
-            Toast.makeText(this, "Tidak ada notifikasi baru", Toast.LENGTH_SHORT).show();
-        });
-        
-        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> filterHistory());
 
-        // Initial Filter
-        filterHistory();
+        btnNotif.setOnClickListener(v -> Toast.makeText(this, "Tidak ada notifikasi", Toast.LENGTH_SHORT).show());
+        
+        if (chipGroup != null) {
+            chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> filterHistory());
+        }
     }
 
-    private void generateMockData() {
-        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/api_tokobaju/images/";
-        allHistory.add(new HistoryItem(1001, "16 Juni 2026", "Selesai", "Midnight Velvet Jacket", 850000, baseUrl + "jacket.jpg"));
-        allHistory.add(new HistoryItem(1002, "17 Juni 2026", "Berlangsung", "Classic Oxford Shirt", 450000, baseUrl + "shirt.jpg"));
-        allHistory.add(new HistoryItem(1003, "12 Mei 2026", "Gagal", "Vintage Denim Jacket", 750000, baseUrl + "denim.jpg"));
-        allHistory.add(new HistoryItem(1004, "05 Mei 2026", "Selesai", "Silk Elegance Dress", 1200000, baseUrl + "dress.jpg"));
+    private void refreshData() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            loadRealHistoryData(user.getUid());
+        }
     }
 
     private void filterHistory() {
+        if (chipGroup == null) return;
+        
         int checkedChipId = chipGroup.getCheckedChipId();
         String selectedFilter = "semua";
         Chip selectedChip = chipGroup.findViewById(checkedChipId);
@@ -97,61 +101,64 @@ public class PaymentHistoryActivity extends AppCompatActivity {
                 matches = item.getStatus().equalsIgnoreCase("gagal") || item.getStatus().equalsIgnoreCase("dibatalkan");
             }
 
-            if (matches) {
-                filteredHistory.add(item);
-            }
+            if (matches) filteredHistory.add(item);
         }
+        
         adapter.notifyDataSetChanged();
+        updateEmptyStateVisibility();
+    }
+
+    private void updateEmptyStateVisibility() {
+        if (filteredHistory.isEmpty()) {
+            rvHistory.setVisibility(View.GONE);
+            if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.VISIBLE);
+        } else {
+            rvHistory.setVisibility(View.VISIBLE);
+            if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            loadRealHistoryData(user.getUid());
-        } else {
-            generateMockData();
-            filterHistory();
-        }
+        // Bersihkan data lama agar tidak tertukar saat ganti akun
+        allHistory.clear();
+        filteredHistory.clear();
+        adapter.notifyDataSetChanged();
+        
+        refreshData();
     }
 
     private void loadRealHistoryData(String uid) {
-        com.bagus.toko_baju_uas.api.ApiInterface api = com.bagus.toko_baju_uas.api.ApiClient.getClient().create(com.bagus.toko_baju_uas.api.ApiInterface.class);
-        api.getHistory(uid).enqueue(new retrofit2.Callback<com.bagus.toko_baju_uas.model.HistoryResponse>() {
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.getHistory(uid).enqueue(new Callback<HistoryResponse>() {
             @Override
-            public void onResponse(@androidx.annotation.NonNull retrofit2.Call<com.bagus.toko_baju_uas.model.HistoryResponse> call, @androidx.annotation.NonNull retrofit2.Response<com.bagus.toko_baju_uas.model.HistoryResponse> response) {
+            public void onResponse(@NonNull Call<HistoryResponse> call, @NonNull Response<HistoryResponse> response) {
+                allHistory.clear();
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    allHistory.clear();
-                    List<com.bagus.toko_baju_uas.model.HistoryResponse.Data> dataList = response.body().getData();
-                    if (dataList != null) {
-                        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/api_tokobaju/images/";
-                        for (com.bagus.toko_baju_uas.model.HistoryResponse.Data tx : dataList) {
-                            String label = "Pesanan #" + tx.id_transaksi;
-                            String img = baseUrl + "default.jpg";
+                    List<HistoryResponse.Data> dataList = response.body().getData();
+                    if (dataList != null && !dataList.isEmpty()) {
+                        String baseUrl = "http://" + ApiClient.IP_LAPTOP + "/api_tokobaju/images/";
+                        for (HistoryResponse.Data tx : dataList) {
                             allHistory.add(new HistoryItem(
                                     tx.id_transaksi,
                                     tx.tanggal,
                                     tx.status,
-                                    label,
+                                    "Pesanan #" + tx.id_transaksi,
                                     tx.total_harga,
-                                    img
+                                    baseUrl + "default.jpg"
                             ));
                         }
                     }
-                    filterHistory();
-                } else {
-                    Toast.makeText(PaymentHistoryActivity.this, "Gagal memuat riwayat", Toast.LENGTH_SHORT).show();
-                    generateMockData();
-                    filterHistory();
                 }
+                filterHistory();
             }
 
             @Override
-            public void onFailure(@androidx.annotation.NonNull retrofit2.Call<com.bagus.toko_baju_uas.model.HistoryResponse> call, @androidx.annotation.NonNull Throwable t) {
-                Toast.makeText(PaymentHistoryActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                generateMockData();
+            public void onFailure(@NonNull Call<HistoryResponse> call, @NonNull Throwable t) {
+                allHistory.clear();
                 filterHistory();
+                Toast.makeText(PaymentHistoryActivity.this, "Gagal memuat data dari server", Toast.LENGTH_SHORT).show();
             }
         });
     }

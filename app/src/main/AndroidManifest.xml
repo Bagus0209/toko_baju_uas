@@ -25,6 +25,10 @@
             android:name=".CheckoutSuccessActivity"
             android:exported="false" />
         <activity
+            android:name=".OnboardingActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".CartActivity"
             android:exported="false" />
         <activity

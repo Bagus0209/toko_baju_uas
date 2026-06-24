@@ -54,8 +54,11 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
-// Glide untuk memuat gambar baju
+    // Glide untuk memuat gambar baju
     implementation("com.github.bumptech.glide:glide:4.12.0")
+
+    // Product Tour Tooltip
+    implementation("com.getkeepsafe.taptargetview:taptargetview:1.13.3")
 }
 
 tasks.withType<JavaCompile>().configureEach {

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -19,14 +21,23 @@ import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bagus.toko_baju_uas.model.BarangResponse;
+import com.bagus.toko_baju_uas.model.UserModel;
+import com.bagus.toko_baju_uas.model.UsersResponse;
 import com.bagus.toko_baju_uas.util.AnimationUtil;
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,7 +55,7 @@ public class PengunjungActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        super.setContentView(R.layout.activity_pengunjung);
+        setContentView(R.layout.activity_pengunjung);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -71,14 +82,21 @@ public class PengunjungActivity extends AppCompatActivity {
             });
         }
 
+        // Help Tour Button
+        View btnHelpTour = findViewById(R.id.btnHelpTour);
+        if (btnHelpTour != null) {
+            btnHelpTour.setOnClickListener(v -> {
+                AnimationUtil.animateButtonClick(v);
+                startProductTour();
+            });
+        }
+
         // Bottom Nav
         bottomNavigation.setSelectedItemId(R.id.nav_shop);
         bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_shop) {
-                if (etSearch != null) {
-                    etSearch.clearFocus();
-                }
+                if (etSearch != null) etSearch.clearFocus();
                 return true;
             } else if (itemId == R.id.nav_search) {
                 focusSearchField();
@@ -98,8 +116,47 @@ public class PengunjungActivity extends AppCompatActivity {
 
         loadProducts();
         setupListeners();
-        
+        checkOnboardingStatus();
         handleIntent(getIntent());
+    }
+
+    private void checkOnboardingStatus() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.getAdminCustomers().enqueue(new Callback<UsersResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<UsersResponse> call, @NonNull Response<UsersResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (UserModel u : response.body().getData()) {
+                        if (u.getEmail().equals(user.getEmail())) {
+                            processOnboardingLogic(u);
+                            break;
+                        }
+                    }
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<UsersResponse> call, @NonNull Throwable t) {
+                android.util.Log.e("OnboardingCheck", "Gagal koneksi: " + t.getMessage());
+            }
+        });
+    }
+
+    private void processOnboardingLogic(UserModel user) {
+        // Cek Local Cache dulu: Jika baru saja selesai, jangan balik lagi walau server belum update
+        boolean isFinishedLocally = getSharedPreferences("app_settings", MODE_PRIVATE)
+                .getBoolean("onboarding_finished_locally", false);
+        
+        if (isFinishedLocally || user.isOnboardingCompleted() || user.isOnboardingSkipped()) return;
+
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        
+        if (!today.equals(user.getOnboardingLastSeen()) && user.getOnboardingSeenCount() < 3) {
+            startActivity(new Intent(this, OnboardingActivity.class));
+            finish();
+        }
     }
 
     private void loadProducts() {
@@ -114,7 +171,6 @@ public class PengunjungActivity extends AppCompatActivity {
                     Toast.makeText(PengunjungActivity.this, "Gagal mengambil data produk", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<BarangResponse> call, @NonNull Throwable t) {
                 Toast.makeText(PengunjungActivity.this, "Koneksi gagal", Toast.LENGTH_SHORT).show();
@@ -131,11 +187,7 @@ public class PengunjungActivity extends AppCompatActivity {
         etSearch.setOnFocusChangeListener((v, hasFocus) -> {
             BottomNavigationView navigation = findViewById(R.id.bottomNavigation);
             if (navigation != null) {
-                if (hasFocus) {
-                    navigation.setSelectedItemId(R.id.nav_search);
-                } else {
-                    navigation.setSelectedItemId(R.id.nav_shop);
-                }
+                navigation.setSelectedItemId(hasFocus ? R.id.nav_search : R.id.nav_shop);
             }
         });
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> filterProducts());
@@ -146,9 +198,7 @@ public class PengunjungActivity extends AppCompatActivity {
         int checkedChipId = chipGroup.getCheckedChipId();
         String category = "all";
         Chip selectedChip = findViewById(checkedChipId);
-        if (selectedChip != null) {
-            category = selectedChip.getText().toString().toLowerCase();
-        }
+        if (selectedChip != null) category = selectedChip.getText().toString().toLowerCase();
 
         filteredProducts.clear();
         for (BajuModel product : allProducts) {
@@ -163,9 +213,7 @@ public class PengunjungActivity extends AppCompatActivity {
                 else if (category.contains("dress") && (name.contains("dress") || name.contains("gaun") || name.contains("rok"))) matchesCategory = true;
             }
 
-            if (matchesSearch && matchesCategory) {
-                filteredProducts.add(product);
-            }
+            if (matchesSearch && matchesCategory) filteredProducts.add(product);
         }
         adapter.notifyDataSetChanged();
     }
@@ -173,10 +221,8 @@ public class PengunjungActivity extends AppCompatActivity {
     private void focusSearchField() {
         if (etSearch != null) {
             etSearch.requestFocus();
-            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(etSearch, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
-            }
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            if (imm != null) imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
         }
     }
 
@@ -188,13 +234,88 @@ public class PengunjungActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        if (intent != null && intent.getBooleanExtra("focus_search", false)) {
-            focusSearchField();
-            BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
-            if (bottomNavigation != null) {
-                bottomNavigation.setSelectedItemId(R.id.nav_search);
+        if (intent != null) {
+            if (intent.getBooleanExtra("focus_search", false)) {
+                focusSearchField();
+                BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
+                if (bottomNavigation != null) bottomNavigation.setSelectedItemId(R.id.nav_search);
+            }
+            
+            if (intent.getBooleanExtra("start_tour", false)) {
+                // Beri sedikit delay agar UI siap
+                new android.os.Handler().postDelayed(this::startProductTour, 1000);
             }
         }
+    }
+
+    private void startProductTour() {
+        BottomNavigationView nav = findViewById(R.id.bottomNavigation);
+        if (nav == null) return;
+
+        // Mendapatkan view dari masing-masing menu bottom navigation
+        View shop = nav.findViewById(R.id.nav_shop);
+        View search = nav.findViewById(R.id.nav_search);
+        View bag = nav.findViewById(R.id.nav_bag);
+        View history = nav.findViewById(R.id.nav_history);
+        View profile = nav.findViewById(R.id.nav_profile);
+
+        // Jika view belum ter-inflate (jarang terjadi di onCreate), tour dibatalkan agar tidak crash
+        if (shop == null) {
+            Toast.makeText(this, "Silakan coba lagi dalam beberapa saat", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new TapTargetSequence(this)
+                .targets(
+                    TapTarget.forView(shop, "Katalog Produk", "Lihat semua koleksi fashion mewah kami di sini.")
+                            .outerCircleColor(R.color.luxe_gold)
+                            .targetRadius(50)
+                            .transparentTarget(true)
+                            .drawShadow(true),
+                    TapTarget.forView(search, "Pencarian Pintar", "Cari baju impian Anda dengan filter kategori.")
+                            .outerCircleColor(R.color.luxe_black)
+                            .targetRadius(50)
+                            .transparentTarget(true),
+                    TapTarget.forView(bag, "Keranjang Belanja", "Kelola item yang ingin Anda beli sebelum checkout.")
+                            .outerCircleColor(R.color.luxe_gold)
+                            .targetRadius(50)
+                            .transparentTarget(true),
+                    TapTarget.forView(history, "Riwayat Transaksi", "Pantau status pesanan dan pembayaran Anda.")
+                            .outerCircleColor(R.color.luxe_black)
+                            .targetRadius(50)
+                            .transparentTarget(true),
+                    TapTarget.forView(profile, "Akun & Alamat", "Atur profil dan alamat pengiriman Anda.")
+                            .outerCircleColor(R.color.luxe_gold)
+                            .targetRadius(50)
+                            .transparentTarget(true)
+                )
+                .listener(new TapTargetSequence.Listener() {
+                    @Override
+                    public void onSequenceFinish() {
+                        Toast.makeText(PengunjungActivity.this, "Tur selesai! Selamat berbelanja.", Toast.LENGTH_SHORT).show();
+                        updateOnboardingStatusOnServer("complete");
+                    }
+                    @Override
+                    public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {}
+                    @Override
+                    public void onSequenceCanceled(TapTarget lastTarget) {
+                        updateOnboardingStatusOnServer("skip");
+                    }
+                })
+                .start();
+    }
+
+    private void updateOnboardingStatusOnServer(String action) {
+        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        api.updateOnboarding(user.getUid(), action).enqueue(new Callback<com.bagus.toko_baju_uas.model.BaseResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<com.bagus.toko_baju_uas.model.BaseResponse> call, @NonNull Response<com.bagus.toko_baju_uas.model.BaseResponse> response) {}
+            @Override
+            public void onFailure(@NonNull Call<com.bagus.toko_baju_uas.model.BaseResponse> call, @NonNull Throwable t) {}
+        });
     }
 
     @Override
@@ -202,11 +323,7 @@ public class PengunjungActivity extends AppCompatActivity {
         super.onResume();
         BottomNavigationView bottomNavigation = findViewById(R.id.bottomNavigation);
         if (bottomNavigation != null) {
-            if (etSearch != null && etSearch.hasFocus()) {
-                bottomNavigation.setSelectedItemId(R.id.nav_search);
-            } else {
-                bottomNavigation.setSelectedItemId(R.id.nav_shop);
-            }
+            bottomNavigation.setSelectedItemId((etSearch != null && etSearch.hasFocus()) ? R.id.nav_search : R.id.nav_shop);
         }
     }
 }
