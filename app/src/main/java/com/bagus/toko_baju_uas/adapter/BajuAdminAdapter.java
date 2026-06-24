@@ -65,6 +65,7 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
         // Hapus indikator stok yang lama karena desain sudah berubah
         // if (baju.getStok() < 10) { ... }
 
+        // Load image using Glide (URL logic is in BajuModel)
         Glide.with(context)
                 .load(baju.getGambar())
                 .placeholder(android.R.drawable.ic_menu_gallery)

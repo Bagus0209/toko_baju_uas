@@ -61,9 +61,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
         holder.tvCartPrice.setText(formatRupiah.format(item.getHarga()));
 
+        // Load image using Glide (URL logic is in CartModel)
         Glide.with(context)
                 .load(item.getGambar())
                 .placeholder(android.R.drawable.ic_menu_gallery)
+                .error(android.R.drawable.ic_menu_gallery)
                 .into(holder.ivCartItem);
 
         // Click Listeners with Animations

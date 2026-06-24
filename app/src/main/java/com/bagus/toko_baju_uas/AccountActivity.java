@@ -479,7 +479,8 @@ public class AccountActivity extends AppCompatActivity {
         if (photoUrl.startsWith("http")) {
             fullUrl = photoUrl;
         } else {
-            fullUrl = "http://" + ApiClient.IP_LAPTOP + "/toko%20baju/images/" + photoUrl;
+            // Gunakan folder 'uploads' untuk konsistensi di seluruh aplikasi
+            fullUrl = "http://" + ApiClient.IP_LAPTOP + "/api_tokobaju/uploads/" + photoUrl;
         }
         
         Glide.with(this)

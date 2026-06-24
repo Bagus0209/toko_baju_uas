@@ -7,7 +7,7 @@ if ([string]::IsNullOrWhiteSpace($sdkRoot)) {
 
 $adb = Join-Path $sdkRoot "platform-tools\adb.exe"
 $apk = Join-Path $PSScriptRoot "..\app\build\outputs\apk\debug\app-debug.apk"
-$packageName = "com.MyTokoBaju"
+$packageName = "com.bagus.toko_baju_uas"
 $activityName = "com.bagus.toko_baju_uas.SplashActivity"
 
 if (-not (Test-Path $adb)) {

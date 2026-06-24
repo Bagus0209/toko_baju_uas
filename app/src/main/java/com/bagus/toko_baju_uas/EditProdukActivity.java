@@ -76,12 +76,13 @@ public class EditProdukActivity extends AppCompatActivity {
             String existingGambar = getIntent().getStringExtra("gambar");
             etEditGambar.setText(existingGambar);
 
-            // Load existing image if present
+            // Load existing image if present using 'images' folder
             if (existingGambar != null && !existingGambar.isEmpty()) {
-                String imageUrl = "http://" + ApiClient.IP_LAPTOP + "/toko%20baju/images/" + existingGambar;
+                String imageUrl = "http://" + ApiClient.IP_LAPTOP + "/api_tokobaju/images/" + existingGambar;
                 Glide.with(this)
                         .load(imageUrl)
                         .placeholder(android.R.drawable.ic_menu_gallery)
+                        .error(android.R.drawable.ic_menu_gallery)
                         .into(ivPreviewGambar);
                 ivPreviewGambar.setVisibility(View.VISIBLE);
                 layoutPlaceholder.setVisibility(View.GONE);

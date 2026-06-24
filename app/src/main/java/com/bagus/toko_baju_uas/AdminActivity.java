@@ -2,41 +2,34 @@ package com.bagus.toko_baju_uas;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.bagus.toko_baju_uas.adapter.BajuAdminAdapter;
 import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.api.ApiInterface;
 import com.bagus.toko_baju_uas.model.AdminStatsResponse;
-import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bagus.toko_baju_uas.model.BarangResponse;
 import com.bagus.toko_baju_uas.util.AnimationUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.switchmaterial.SwitchMaterial;
-import androidx.core.content.ContextCompat;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -45,12 +38,8 @@ import retrofit2.Response;
 
 public class AdminActivity extends AppCompatActivity {
 
-    private RecyclerView rvBajuAdmin;
     private DrawerLayout drawerLayout;
-    private BajuAdminAdapter adapter;
-    private List<BajuModel> listBaju = new ArrayList<>();
-    
-    private TextView tvTotalProduk, tvTotalOrders, tvTotalRevenue;
+    private TextView tvTotalProduk, tvTotalOrders, tvTotalRevenue, tvTotalUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,28 +55,32 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity_admin);
 
-        rvBajuAdmin = findViewById(R.id.rvBajuAdmin);
-        MaterialButton btnTambahProduk = findViewById(R.id.btnTambahProduk);
-        ImageButton btnMenu = findViewById(R.id.btnMenu);
         drawerLayout = findViewById(R.id.drawerLayout);
+        ImageButton btnMenu = findViewById(R.id.btnMenu);
         
         tvTotalProduk = findViewById(R.id.tvTotalProduk); 
         tvTotalOrders = findViewById(R.id.tvTotalOrders);
         tvTotalRevenue = findViewById(R.id.tvTotalRevenue);
+        tvTotalUsers = findViewById(R.id.tvTotalUsers);
 
-        rvBajuAdmin.setLayoutManager(new LinearLayoutManager(this));
-        
+        MaterialButton btnViewInventory = findViewById(R.id.btnViewInventory);
+        MaterialButton btnVisitShop = findViewById(R.id.btnVisitShop);
+
         loadAdminDashboard();
-        fetchDataBarang();
-
-        btnTambahProduk.setOnClickListener(v -> {
-            AnimationUtil.animateButtonClick(v);
-            startActivity(new Intent(AdminActivity.this, TambahProdukActivity.class));
-        });
 
         btnMenu.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
             drawerLayout.openDrawer(GravityCompat.START);
+        });
+
+        btnViewInventory.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(AdminActivity.this, InventoryActivity.class));
+        });
+
+        btnVisitShop.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            startActivity(new Intent(AdminActivity.this, PengunjungActivity.class));
         });
 
         NavigationView navigationView = findViewById(R.id.navigationView);
@@ -95,12 +88,9 @@ public class AdminActivity extends AppCompatActivity {
             int id = item.getItemId();
             
             if (id == R.id.nav_dashboard) {
-                // Already here, just refresh
                 loadAdminDashboard();
-                fetchDataBarang();
             } else if (id == R.id.nav_inventory) {
-                // Focus on inventory list
-                rvBajuAdmin.smoothScrollToPosition(0);
+                startActivity(new Intent(this, InventoryActivity.class));
             } else if (id == R.id.nav_orders) {
                 startActivity(new Intent(this, TransactionsAdminActivity.class));
             } else if (id == R.id.nav_customers) {
@@ -111,8 +101,6 @@ public class AdminActivity extends AppCompatActivity {
                 showAddAdminDialog();
             } else if (id == R.id.nav_logout) {
                 logout();
-            } else {
-                Toast.makeText(this, "Fitur " + item.getTitle() + " akan segera hadir!", Toast.LENGTH_SHORT).show();
             }
 
             drawerLayout.closeDrawer(GravityCompat.START);
@@ -127,33 +115,29 @@ public class AdminActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<AdminStatsResponse> call, @NonNull Response<AdminStatsResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
                     AdminStatsResponse.Data data = response.body().getData();
-                    tvTotalProduk.setText(String.valueOf(data.total_products));
-                    tvTotalOrders.setText(String.valueOf(data.total_orders));
-                    
-                    Locale localeID = Locale.forLanguageTag("id-ID");
-                    NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
-                    tvTotalRevenue.setText(formatRupiah.format(data.total_revenue));
+                    if (data != null) {
+                        if (tvTotalProduk != null) tvTotalProduk.setText(String.valueOf(data.total_products));
+                        if (tvTotalOrders != null) tvTotalOrders.setText(String.valueOf(data.total_orders));
+                        if (tvTotalUsers != null) tvTotalUsers.setText(String.valueOf(data.total_users));
+                        
+                        if (tvTotalRevenue != null) {
+                            Locale localeID = new Locale("id", "ID");
+                            NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+                            tvTotalRevenue.setText(formatRupiah.format(data.total_revenue));
+                        }
+                    }
+                } else {
+                    // Jika data kosong atau status false, set ke 0
+                    if (tvTotalProduk != null) tvTotalProduk.setText("0");
+                    if (tvTotalOrders != null) tvTotalOrders.setText("0");
+                    if (tvTotalUsers != null) tvTotalUsers.setText("0");
+                    if (tvTotalRevenue != null) tvTotalRevenue.setText("Rp 0");
                 }
             }
             @Override
-            public void onFailure(@NonNull Call<AdminStatsResponse> call, @NonNull Throwable t) {}
-        });
-    }
-
-    private void fetchDataBarang() {
-        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
-        apiInterface.getBarang().enqueue(new Callback<BarangResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<BarangResponse> call, @NonNull Response<BarangResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    listBaju = response.body().getData();
-                    adapter = new BajuAdminAdapter(AdminActivity.this, listBaju);
-                    rvBajuAdmin.setAdapter(adapter);
-                }
-            }
-            @Override
-            public void onFailure(@NonNull Call<BarangResponse> call, @NonNull Throwable t) {
-                Toast.makeText(AdminActivity.this, "Koneksi gagal", Toast.LENGTH_SHORT).show();
+            public void onFailure(@NonNull Call<AdminStatsResponse> call, @NonNull Throwable t) {
+                // Jangan tampilkan toast terus-menerus di dashboard, cukup log saja
+                android.util.Log.e("AdminDashboard", "Stats error: " + t.getMessage());
             }
         });
     }
@@ -169,7 +153,6 @@ public class AdminActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        fetchDataBarang();
         loadAdminDashboard();
     }
 
@@ -188,65 +171,50 @@ public class AdminActivity extends AppCompatActivity {
         SwitchMaterial switchDark = dialogView.findViewById(R.id.switchAdminDarkMode);
         SwitchMaterial switchNotif = dialogView.findViewById(R.id.switchAdminNotifications);
 
-        // Populate Current User Details
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             tvEmail.setText(user.getEmail());
-            
-            // Load local cached name first
             String localName = sp.getString("user_profile_name_" + user.getUid(), null);
-            if (localName != null) {
-                etNama.setText(localName);
-            }
+            if (localName != null) etNama.setText(localName);
             
             FirebaseFirestore.getInstance().collection("users").document(user.getUid()).get()
                     .addOnSuccessListener(doc -> {
-                        if (doc.exists()) {
-                            String fsName = doc.getString("nama");
-                            if (fsName != null && localName == null) {
-                                etNama.setText(fsName);
-                            }
+                        if (doc.exists() && localName == null) {
+                            etNama.setText(doc.getString("nama"));
                         }
                     });
         }
 
-        // Populate inputs
         etIp.setText(com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP);
         switchDark.setChecked(isDarkMode);
         switchNotif.setChecked(isNotifications);
 
-        // Connection Test Logic
         btnTest.setOnClickListener(v -> {
             String testIp = etIp.getText().toString().trim();
-            if (testIp.isEmpty()) {
-                tvStatus.setText("Status: IP kosong");
-                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.status_cancelled));
-                return;
-            }
+            if (testIp.isEmpty()) return;
             tvStatus.setText("Menghubungkan...");
             tvStatus.setTextColor(ContextCompat.getColor(this, R.color.luxe_gold));
 
-            String testUrl = "http://" + testIp + "/toko%20baju/";
+            String testUrl = "http://" + testIp + "/api_tokobaju/";
             retrofit2.Retrofit testRetrofit = new retrofit2.Retrofit.Builder()
                     .baseUrl(testUrl)
                     .addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create())
                     .build();
-            com.bagus.toko_baju_uas.api.ApiInterface testApi = testRetrofit.create(com.bagus.toko_baju_uas.api.ApiInterface.class);
-            testApi.getBarang().enqueue(new retrofit2.Callback<com.bagus.toko_baju_uas.model.BarangResponse>() {
+            ApiInterface testApi = testRetrofit.create(ApiInterface.class);
+            testApi.getBarang().enqueue(new Callback<BarangResponse>() {
                 @Override
-                public void onResponse(@NonNull retrofit2.Call<com.bagus.toko_baju_uas.model.BarangResponse> call, @NonNull retrofit2.Response<com.bagus.toko_baju_uas.model.BarangResponse> response) {
+                public void onResponse(@NonNull Call<BarangResponse> call, @NonNull Response<BarangResponse> response) {
                     if (response.isSuccessful()) {
-                        tvStatus.setText("Status: Sukses Terhubung");
+                        tvStatus.setText("Status: Sukses");
                         tvStatus.setTextColor(ContextCompat.getColor(AdminActivity.this, R.color.status_completed));
                     } else {
-                        tvStatus.setText("Status: Gagal (HTTP " + response.code() + ")");
+                        tvStatus.setText("Status: Gagal (" + response.code() + ")");
                         tvStatus.setTextColor(ContextCompat.getColor(AdminActivity.this, R.color.status_cancelled));
                     }
                 }
-
                 @Override
-                public void onFailure(@NonNull retrofit2.Call<com.bagus.toko_baju_uas.model.BarangResponse> call, @NonNull Throwable t) {
-                    tvStatus.setText("Status: Gagal Terhubung");
+                public void onFailure(@NonNull Call<BarangResponse> call, @NonNull Throwable t) {
+                    tvStatus.setText("Status: Error");
                     tvStatus.setTextColor(ContextCompat.getColor(AdminActivity.this, R.color.status_cancelled));
                 }
             });
@@ -256,12 +224,11 @@ public class AdminActivity extends AppCompatActivity {
                 .setView(dialogView)
                 .setPositiveButton("Simpan", (dialog, which) -> {
                     boolean darkChecked = switchDark.isChecked();
-                    boolean notifChecked = switchNotif.isChecked();
                     String newIp = etIp.getText().toString().trim();
 
                     android.content.SharedPreferences.Editor editor = sp.edit();
                     editor.putBoolean("dark_mode", darkChecked);
-                    editor.putBoolean("admin_notifications", notifChecked);
+                    editor.putBoolean("admin_notifications", switchNotif.isChecked());
 
                     if (!newIp.isEmpty()) {
                         com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP = newIp;
@@ -269,32 +236,16 @@ public class AdminActivity extends AppCompatActivity {
                     }
                     editor.apply();
 
-                    // Runnable to apply dark mode after any async tasks
-                    Runnable applyTheme = () -> {
-                        if (darkChecked) {
-                            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
-                        } else {
-                            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
-                        }
-                    };
+                    if (darkChecked) {
+                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+                    } else {
+                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+                    }
 
-                    // Save Name
                     String newName = etNama.getText().toString().trim();
                     if (user != null && !newName.isEmpty()) {
-                        editor.putString("user_profile_name_" + user.getUid(), newName);
-                        editor.apply();
-                        
-                        Toast.makeText(AdminActivity.this, "Pengaturan & nama berhasil disimpan", Toast.LENGTH_SHORT).show();
-                        applyTheme.run();
-
-                        FirebaseFirestore.getInstance().collection("users").document(user.getUid())
-                                .update("nama", newName)
-                                .addOnFailureListener(e -> {
-                                    android.util.Log.d("FirestoreSync", "Silently failed to update admin name: " + e.getMessage());
-                                });
-                    } else {
-                        Toast.makeText(AdminActivity.this, "Pengaturan berhasil disimpan", Toast.LENGTH_SHORT).show();
-                        applyTheme.run();
+                        editor.putString("user_profile_name_" + user.getUid(), newName).apply();
+                        FirebaseFirestore.getInstance().collection("users").document(user.getUid()).update("nama", newName);
                     }
                 })
                 .setNegativeButton("Batal", null)
@@ -314,32 +265,19 @@ public class AdminActivity extends AppCompatActivity {
                 .create();
 
         dialog.setOnShowListener(dialogInterface -> {
-            android.widget.Button btnPositive = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE);
-            btnPositive.setOnClickListener(v -> {
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 String nama = etNewAdminNama.getText().toString().trim();
                 String email = etNewAdminEmail.getText().toString().trim();
                 String password = etNewAdminPassword.getText().toString().trim();
 
-                if (nama.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(AdminActivity.this, "Semua field harus diisi!", Toast.LENGTH_SHORT).show();
+                if (nama.isEmpty() || email.isEmpty() || password.isEmpty() || password.length() < 6) {
+                    Toast.makeText(AdminActivity.this, "Data tidak valid atau password < 6 karakter", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                if (password.length() < 6) {
-                    Toast.makeText(AdminActivity.this, "Password minimal harus 6 karakter!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (!email.contains("@")) {
-                    Toast.makeText(AdminActivity.this, "Email tidak valid!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
                 dialog.dismiss();
                 checkAdminLimitAndRegister(nama, email, password);
             });
         });
-
         dialog.show();
     }
 
@@ -348,39 +286,29 @@ public class AdminActivity extends AppCompatActivity {
         api.checkAdminCount().enqueue(new Callback<com.bagus.toko_baju_uas.model.BaseResponse>() {
             @Override
             public void onResponse(@NonNull Call<com.bagus.toko_baju_uas.model.BaseResponse> call, @NonNull Response<com.bagus.toko_baju_uas.model.BaseResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().isStatus()) {
-                        registerNewAdmin(name, email, password);
-                    } else {
-                        Toast.makeText(AdminActivity.this, response.body().getMessage(), Toast.LENGTH_LONG).show();
-                    }
+                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
+                    registerNewAdmin(name, email, password);
                 } else {
-                    Toast.makeText(AdminActivity.this, "Gagal mengecek limit admin", Toast.LENGTH_SHORT).show();
+                    String msg = response.body() != null ? response.body().getMessage() : "Limit tercapai";
+                    Toast.makeText(AdminActivity.this, msg, Toast.LENGTH_LONG).show();
                 }
             }
-
             @Override
-            public void onFailure(@NonNull Call<com.bagus.toko_baju_uas.model.BaseResponse> call, @NonNull Throwable t) {
-                Toast.makeText(AdminActivity.this, "Koneksi error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            public void onFailure(@NonNull Call<com.bagus.toko_baju_uas.model.BaseResponse> call, @NonNull Throwable t) {}
         });
     }
 
     private void registerNewAdmin(String name, String email, String password) {
-        Toast.makeText(this, "Mendaftarkan admin baru...", Toast.LENGTH_SHORT).show();
-        
         try {
             FirebaseOptions options = FirebaseApp.getInstance().getOptions();
             String tempAppName = "TempAdminReg_" + System.currentTimeMillis();
             FirebaseApp tempApp = FirebaseApp.initializeApp(this, options, tempAppName);
-            com.google.firebase.auth.FirebaseAuth tempAuth = com.google.firebase.auth.FirebaseAuth.getInstance(tempApp);
+            FirebaseAuth tempAuth = FirebaseAuth.getInstance(tempApp);
 
             tempAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null && task.getResult().getUser() != null) {
+                        if (task.isSuccessful() && task.getResult().getUser() != null) {
                             String uid = task.getResult().getUser().getUid();
-
-                            // 1. Simpan ke Firestore
                             java.util.Map<String, Object> userMap = new java.util.HashMap<>();
                             userMap.put("nama", name);
                             userMap.put("email", email);
@@ -388,31 +316,24 @@ public class AdminActivity extends AppCompatActivity {
 
                             FirebaseFirestore.getInstance().collection("users").document(uid).set(userMap)
                                     .addOnCompleteListener(fsTask -> {
-                                        // 2. Register ke MySQL
                                         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
                                         api.register(uid, name, email, password, "admin").enqueue(new Callback<com.bagus.toko_baju_uas.model.BaseResponse>() {
                                             @Override
                                             public void onResponse(@NonNull Call<com.bagus.toko_baju_uas.model.BaseResponse> call, @NonNull Response<com.bagus.toko_baju_uas.model.BaseResponse> response) {
-                                                Toast.makeText(AdminActivity.this, "Admin baru berhasil ditambahkan!", Toast.LENGTH_LONG).show();
+                                                Toast.makeText(AdminActivity.this, "Admin berhasil ditambahkan!", Toast.LENGTH_LONG).show();
                                                 tempApp.delete();
                                                 loadAdminDashboard();
                                             }
-
                                             @Override
-                                            public void onFailure(@NonNull Call<com.bagus.toko_baju_uas.model.BaseResponse> call, @NonNull Throwable t) {
-                                                Toast.makeText(AdminActivity.this, "Sinkronisasi ke database MySQL gagal, namun akun Firebase terdaftar", Toast.LENGTH_LONG).show();
-                                                tempApp.delete();
-                                            }
+                                            public void onFailure(@NonNull Call<com.bagus.toko_baju_uas.model.BaseResponse> call, @NonNull Throwable t) { tempApp.delete(); }
                                         });
-                                      });
-                          } else {
-                              String errorMsg = task.getException() != null ? task.getException().getMessage() : "Kesalahan tidak diketahui";
-                              Toast.makeText(AdminActivity.this, "Gagal membuat akun admin: " + errorMsg, Toast.LENGTH_LONG).show();
-                              tempApp.delete();
-                          }
-                      });
-          } catch (Exception e) {
-              Toast.makeText(this, "Error in Firebase secondary instance: " + e.getMessage(), Toast.LENGTH_LONG).show();
-          }
-      }
-  }
+                                    });
+                        } else {
+                            tempApp.delete();
+                        }
+                    });
+        } catch (Exception e) {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+}

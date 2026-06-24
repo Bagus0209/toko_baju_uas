@@ -19,8 +19,9 @@ public class CartModel {
     
     public String getGambar() {
         if (gambar != null && !gambar.trim().isEmpty() && !gambar.startsWith("http")) {
-            return "http://" + ApiClient.IP_LAPTOP + "/toko%20baju/images/" + gambar.trim();
+            // Kembali ke folder 'images' sesuai struktur awal Anda
+            return "http://" + ApiClient.IP_LAPTOP + "/api_tokobaju/images/" + gambar.trim();
         }
-        return gambar;
+        return (gambar != null) ? gambar : "";
     }
 }

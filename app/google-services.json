@@ -1,34 +1,41 @@
 {
   "project_info": {
-    "project_number": "456106637695",
-    "firebase_url": "https://comexamplemyapplication-87ef7-default-rtdb.firebaseio.com",
-    "project_id": "comexamplemyapplication-87ef7",
-    "storage_bucket": "comexamplemyapplication-87ef7.firebasestorage.app"
+    "project_number": "610252703058",
+    "project_id": "toko-baju-5323c",
+    "storage_bucket": "toko-baju-5323c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:456106637695:android:dbbfe70e6ed9072b09824a",
+        "mobilesdk_app_id": "1:610252703058:android:8c2711c6b99c0d0d02268b",
         "android_client_info": {
-          "package_name": "com.MyTokoBaju"
+          "package_name": "com.bagus.toko_baju_uas"
         }
       },
       "oauth_client": [
         {
-          "client_id": "456106637695-q1gm40p0hfcbq8up9rqtb02qbs5q76nr.apps.googleusercontent.com",
+          "client_id": "610252703058-apll8ohijm3kovsv12kte2l2f4kb7d76.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bagus.toko_baju_uas",
+            "certificate_hash": "70a4e1096ce59e5b2b5cbb3caf47d0bd7013f1d0"
+          }
+        },
+        {
+          "client_id": "610252703058-ml0jita58ja9lp5dtu5o4b7hhb4aicvi.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDVH97B-31x6gcFALbSvMR2UcKKy9b0a1s"
+          "current_key": "AIzaSyAZvoMCxwbjM01xHKHwGqbubyNKiLHK9ao"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "456106637695-q1gm40p0hfcbq8up9rqtb02qbs5q76nr.apps.googleusercontent.com",
+              "client_id": "610252703058-ml0jita58ja9lp5dtu5o4b7hhb4aicvi.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

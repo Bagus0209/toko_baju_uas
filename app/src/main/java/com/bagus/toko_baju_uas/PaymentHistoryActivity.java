@@ -69,7 +69,7 @@ public class PaymentHistoryActivity extends AppCompatActivity {
     }
 
     private void generateMockData() {
-        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/toko%20baju/images/";
+        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/api_tokobaju/images/";
         allHistory.add(new HistoryItem(1001, "16 Juni 2026", "Selesai", "Midnight Velvet Jacket", 850000, baseUrl + "jacket.jpg"));
         allHistory.add(new HistoryItem(1002, "17 Juni 2026", "Berlangsung", "Classic Oxford Shirt", 450000, baseUrl + "shirt.jpg"));
         allHistory.add(new HistoryItem(1003, "12 Mei 2026", "Gagal", "Vintage Denim Jacket", 750000, baseUrl + "denim.jpg"));
@@ -125,7 +125,7 @@ public class PaymentHistoryActivity extends AppCompatActivity {
                     allHistory.clear();
                     List<com.bagus.toko_baju_uas.model.HistoryResponse.Data> dataList = response.body().getData();
                     if (dataList != null) {
-                        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/toko%20baju/images/";
+                        String baseUrl = "http://" + com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP + "/api_tokobaju/images/";
                         for (com.bagus.toko_baju_uas.model.HistoryResponse.Data tx : dataList) {
                             String label = "Pesanan #" + tx.id_transaksi;
                             String img = baseUrl + "default.jpg";

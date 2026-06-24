@@ -57,6 +57,8 @@ public class SplashActivity extends AppCompatActivity {
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         String role = doc.getString("role");
+                        if (role == null || role.isEmpty()) role = "pengunjung";
+                        
                         sp.edit().putString("cached_user_role", role.toLowerCase()).apply();
                         
                         // Sync user to MySQL
@@ -71,43 +73,47 @@ public class SplashActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
+                        // Jika tidak ada di Firestore, gunakan cache atau logout
                         if (!cachedRole.isEmpty()) {
-                            // Sync user to MySQL using cached role
-                            com.bagus.toko_baju_uas.util.UserSyncUtil.syncUser(SplashActivity.this, cachedRole);
-                            
-                            Intent intent;
-                            if ("admin".equalsIgnoreCase(cachedRole)) {
-                                intent = new Intent(SplashActivity.this, AdminActivity.class);
-                            } else {
-                                intent = new Intent(SplashActivity.this, PengunjungActivity.class);
-                            }
-                            startActivity(intent);
-                            finish();
+                            redirectToCachedRole(cachedRole);
                         } else {
-                            FirebaseAuth.getInstance().signOut();
-                            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                            finish();
+                            // Coba buat doc baru sebagai pengunjung jika ini user baru (misal login google sukses tapi splash dipanggil lagi)
+                            saveNewUserAndRedirect(user);
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
                     if (!cachedRole.isEmpty()) {
-                        // Sync user to MySQL using cached role
-                        com.bagus.toko_baju_uas.util.UserSyncUtil.syncUser(SplashActivity.this, cachedRole);
-                        
-                        Intent intent;
-                        if ("admin".equalsIgnoreCase(cachedRole)) {
-                            intent = new Intent(SplashActivity.this, AdminActivity.class);
-                        } else {
-                            intent = new Intent(SplashActivity.this, PengunjungActivity.class);
-                        }
-                        startActivity(intent);
-                        finish();
+                        redirectToCachedRole(cachedRole);
                     } else {
                         Toast.makeText(this, "Gagal memvalidasi sesi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(SplashActivity.this, MainActivity.class));
                         finish();
                     }
+                });
+    }
+
+    private void redirectToCachedRole(String role) {
+        Intent intent;
+        if ("admin".equalsIgnoreCase(role)) {
+            intent = new Intent(SplashActivity.this, AdminActivity.class);
+        } else {
+            intent = new Intent(SplashActivity.this, PengunjungActivity.class);
+        }
+        startActivity(intent);
+        finish();
+    }
+
+    private void saveNewUserAndRedirect(FirebaseUser user) {
+        java.util.Map<String, Object> userData = new java.util.HashMap<>();
+        userData.put("nama", (user.getDisplayName() != null) ? user.getDisplayName() : "User");
+        userData.put("email", user.getEmail());
+        userData.put("role", "pengunjung");
+
+        FirebaseFirestore.getInstance().collection("users").document(user.getUid()).set(userData)
+                .addOnCompleteListener(task -> {
+                    startActivity(new Intent(SplashActivity.this, PengunjungActivity.class));
+                    finish();
                 });
     }
 }

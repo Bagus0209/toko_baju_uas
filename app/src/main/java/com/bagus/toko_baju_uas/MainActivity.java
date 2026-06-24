@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
 
-        // Ambil Web Client ID yang digenerate dari google-services.json
-        String webClientId = getString(R.string.default_web_client_id);
+        // Gunakan Web Client ID eksplisit dari google-services.json untuk menghindari mismatch
+        String webClientId = "610252703058-ml0jita58ja9lp5dtu5o4b7hhb4aicvi.apps.googleusercontent.com";
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(webClientId) 
@@ -147,7 +147,8 @@ public class MainActivity extends AppCompatActivity {
                         FirebaseUser user = mAuth.getCurrentUser();
                         checkUserRoleFirestore(user);
                     } else {
-                        Toast.makeText(MainActivity.this, "Firebase Authentication Failed.", Toast.LENGTH_SHORT).show();
+                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown Error";
+                        Toast.makeText(MainActivity.this, "Firebase Auth Gagal: " + error, Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -247,26 +248,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveNewUserFirestore(FirebaseUser user) {
         Map<String, Object> userData = new HashMap<>();
-        userData.put("nama", user.getDisplayName());
+        userData.put("nama", (user.getDisplayName() != null) ? user.getDisplayName() : "User");
         userData.put("email", user.getEmail());
         userData.put("role", "pengunjung");
 
         mFirestore.collection("users").document(user.getUid()).set(userData)
-                .addOnSuccessListener(aVoid -> redirectToDashboard("pengunjung"));
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Berhasil mendaftarkan akun baru", Toast.LENGTH_SHORT).show();
+                    redirectToDashboard("pengunjung");
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Gagal simpan ke Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    redirectToDashboard("pengunjung");
+                });
     }
 
     private void redirectToDashboard(String role) {
-        String finalRole = (role != null) ? role.toLowerCase() : "pengunjung";
+        // Normalisasi role agar tidak null dan selalu huruf kecil
+        String finalRole = (role != null && !role.isEmpty()) ? role.toLowerCase().trim() : "pengunjung";
         
-        // Cache user role
+        // Cache user role untuk mempercepat loading berikutnya
         android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
         sp.edit().putString("cached_user_role", finalRole).apply();
         
-        // Sync user to MySQL
+        // Sinkronisasi data user ke MySQL lokal
         com.bagus.toko_baju_uas.util.UserSyncUtil.syncUser(this, finalRole);
         
         Intent intent;
-        if (Objects.equals(finalRole, "admin")) {
+        // Hanya kirim ke Admin jika role benar-benar 'admin'
+        if ("admin".equals(finalRole)) {
             intent = new Intent(this, AdminActivity.class);
         } else {
             intent = new Intent(this, PengunjungActivity.class);

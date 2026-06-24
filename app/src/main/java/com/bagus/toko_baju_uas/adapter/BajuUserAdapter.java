@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bagus.toko_baju_uas.R;
+import com.bagus.toko_baju_uas.api.ApiClient;
 import com.bagus.toko_baju_uas.model.BajuModel;
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
@@ -50,7 +51,7 @@ public class BajuUserAdapter extends RecyclerView.Adapter<BajuUserAdapter.ViewHo
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
         holder.tvHargaBaju.setText(formatRupiah.format(baju.getHarga()));
 
-        // Menampilkan Gambar dengan Glide
+        // Menampilkan Gambar dengan Glide (URL logic is in BajuModel)
         Glide.with(context)
                 .load(baju.getGambar())
                 .placeholder(android.R.drawable.ic_menu_gallery)
