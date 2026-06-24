@@ -264,6 +264,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void redirectToDashboard(String role) {
+        // Tandai sesi sebagai aktif karena login berhasil
+        com.bagus.toko_baju_uas.api.ApiClient.isSessionActive = true;
+
         // Normalisasi role agar tidak null dan selalu huruf kecil
         String finalRole = (role != null && !role.isEmpty()) ? role.toLowerCase().trim() : "pengunjung";
         

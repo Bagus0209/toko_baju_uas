@@ -13,6 +13,9 @@ public class ApiClient {
      */
     public static String IP_LAPTOP = "192.168.1.12";
     
+    // Flag untuk mendeteksi apakah aplikasi baru dibuka (Cold Start) atau resume
+    public static boolean isSessionActive = false;
+    
     private static String lastUsedIp = "";
     private static Retrofit retrofit;
 

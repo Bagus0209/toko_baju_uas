@@ -38,11 +38,13 @@ public class SplashActivity extends AppCompatActivity {
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (currentUser != null) {
-                // Jika sudah login, cek role dan arahkan langsung
+            
+            // Logika Sesi Baru:
+            // Tetap login hanya jika (Sudah Login Firebase) DAN (Aplikasi tidak di-task kill/Cold Start)
+            if (currentUser != null && com.bagus.toko_baju_uas.api.ApiClient.isSessionActive) {
                 checkUserRoleAndRedirect(currentUser);
             } else {
-                // Jika belum login, ke halaman Login
+                // Jika aplikasi baru dibuka (Cold Start) atau belum login, arahkan ke Login
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 finish();
             }

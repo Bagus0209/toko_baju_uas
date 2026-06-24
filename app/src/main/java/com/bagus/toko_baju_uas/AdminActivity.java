@@ -143,7 +143,19 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void logout() {
+        // Sign out dari Firebase
         FirebaseAuth.getInstance().signOut();
+        
+        // Sign out dari Google agar pilihan akun muncul lagi
+        com.google.android.gms.auth.api.signin.GoogleSignInOptions gso = new com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN).build();
+        com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso).signOut();
+
+        // Reset status sesi dan bersihkan cache
+        com.bagus.toko_baju_uas.api.ApiClient.isSessionActive = false;
+        android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
+        sp.edit().remove("cached_user_role").apply();
+
+        // Kembali ke Login
         Intent intent = new Intent(AdminActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

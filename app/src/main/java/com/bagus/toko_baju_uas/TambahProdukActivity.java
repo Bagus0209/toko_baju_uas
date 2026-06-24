@@ -90,7 +90,11 @@ public class TambahProdukActivity extends AppCompatActivity {
         try {
             java.io.InputStream inputStream = getContentResolver().openInputStream(uri);
             if (inputStream == null) return null;
-            java.io.File tempFile = new java.io.File(getCacheDir(), "upload_temp.jpg");
+            
+            // Nama file unik agar tidak bentrok
+            String fileName = "prod_" + System.currentTimeMillis() + ".jpg";
+            java.io.File tempFile = new java.io.File(getCacheDir(), fileName);
+            
             java.io.FileOutputStream outputStream = new java.io.FileOutputStream(tempFile);
             byte[] buffer = new byte[1024];
             int read;
@@ -115,37 +119,48 @@ public class TambahProdukActivity extends AppCompatActivity {
 
         java.io.File file = getFileFromUri(selectedImageUri);
         if (file == null) {
-            Toast.makeText(this, "Gagal memproses file gambar!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Gagal memproses gambar!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Toast.makeText(this, "Mengupload gambar...", Toast.LENGTH_SHORT).show();
+        // Tampilkan loading agar user tahu proses sedang berjalan
+        Toast.makeText(this, "Sedang mengunggah...", Toast.LENGTH_SHORT).show();
 
-        String mimeType = getContentResolver().getType(selectedImageUri);
-        if (mimeType == null) mimeType = "image/jpeg";
-        
         okhttp3.RequestBody requestFile = okhttp3.RequestBody.create(
-                okhttp3.MediaType.parse(mimeType),
+                okhttp3.MediaType.parse("image/*"),
                 file
         );
+        
+        // Pastikan field name "image" sesuai dengan yang ada di script PHP Anda
         okhttp3.MultipartBody.Part body = okhttp3.MultipartBody.Part.createFormData("image", file.getName(), requestFile);
 
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         api.uploadGambar(body).enqueue(new Callback<com.bagus.toko_baju_uas.model.UploadResponse>() {
             @Override
             public void onResponse(@NonNull Call<com.bagus.toko_baju_uas.model.UploadResponse> call, @NonNull Response<com.bagus.toko_baju_uas.model.UploadResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    String uploadedFileName = response.body().getFileName();
-                    saveProductToDatabase(nama, harga, stok, uploadedFileName);
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isStatus()) {
+                        String uploadedFileName = response.body().getFileName();
+                        saveProductToDatabase(nama, harga, stok, uploadedFileName);
+                    } else {
+                        Toast.makeText(TambahProdukActivity.this, "Gagal: " + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    String msg = response.body() != null ? response.body().getMessage() : "Gagal upload";
-                    Toast.makeText(TambahProdukActivity.this, "Gagal upload: " + msg, Toast.LENGTH_SHORT).show();
+                    String errorDetail = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorDetail = response.errorBody().string();
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    android.util.Log.e("UPLOAD_ERROR", "Code: " + response.code() + " Body: " + errorDetail);
+                    Toast.makeText(TambahProdukActivity.this, "Server Error (" + response.code() + "). Cek Logcat!", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<com.bagus.toko_baju_uas.model.UploadResponse> call, @NonNull Throwable t) {
-                Toast.makeText(TambahProdukActivity.this, "Gagal upload: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(TambahProdukActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

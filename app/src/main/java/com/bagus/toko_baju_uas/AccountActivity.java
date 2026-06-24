@@ -479,8 +479,8 @@ public class AccountActivity extends AppCompatActivity {
         if (photoUrl.startsWith("http")) {
             fullUrl = photoUrl;
         } else {
-            // Gunakan folder 'uploads' untuk konsistensi di seluruh aplikasi
-            fullUrl = "http://" + ApiClient.IP_LAPTOP + "/api_tokobaju/uploads/" + photoUrl;
+            // Gunakan folder 'images' sesuai struktur database Anda
+            fullUrl = "http://" + ApiClient.IP_LAPTOP + "/api_tokobaju/images/" + photoUrl;
         }
         
         Glide.with(this)
@@ -493,37 +493,35 @@ public class AccountActivity extends AppCompatActivity {
     private void uploadProfileImage(Uri uri, com.google.android.material.imageview.ShapeableImageView ivProfilePicture) {
         File file = getFileFromUri(uri);
         if (file == null) {
-            Toast.makeText(this, "Gagal memproses file gambar!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Gagal memproses foto!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Toast.makeText(this, "Mengupload gambar...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Mengunggah foto profil...", Toast.LENGTH_SHORT).show();
 
-        String mimeType = getContentResolver().getType(uri);
-        if (mimeType == null) mimeType = "image/jpeg";
-        
-        RequestBody requestFile = RequestBody.create(
-                MediaType.parse(mimeType),
-                file
-        );
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
 
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         api.uploadGambar(body).enqueue(new Callback<com.bagus.toko_baju_uas.model.UploadResponse>() {
             @Override
             public void onResponse(@NonNull Call<com.bagus.toko_baju_uas.model.UploadResponse> call, @NonNull Response<com.bagus.toko_baju_uas.model.UploadResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
-                    String uploadedFileName = response.body().getFileName();
-                    saveProfilePhotoToFirestore(uploadedFileName, ivProfilePicture);
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isStatus()) {
+                        String uploadedFileName = response.body().getFileName();
+                        saveProfilePhotoToFirestore(uploadedFileName, ivProfilePicture);
+                    } else {
+                        Toast.makeText(AccountActivity.this, "Gagal: " + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    String msg = response.body() != null ? response.body().getMessage() : "Gagal upload";
-                    Toast.makeText(AccountActivity.this, "Gagal upload: " + msg, Toast.LENGTH_SHORT).show();
+                    // Tampilkan kode error jika server menolak (misal 500 atau 404)
+                    Toast.makeText(AccountActivity.this, "Server Error (" + response.code() + ")", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<com.bagus.toko_baju_uas.model.UploadResponse> call, @NonNull Throwable t) {
-                Toast.makeText(AccountActivity.this, "Gagal upload: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(AccountActivity.this, "Koneksi Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -532,7 +530,11 @@ public class AccountActivity extends AppCompatActivity {
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
             if (inputStream == null) return null;
-            File tempFile = new File(getCacheDir(), "profile_temp.jpg");
+            
+            // Nama file unik agar tidak bentrok
+            String fileName = "user_" + System.currentTimeMillis() + ".jpg";
+            File tempFile = new File(getCacheDir(), fileName);
+
             FileOutputStream outputStream = new FileOutputStream(tempFile);
             byte[] buffer = new byte[1024];
             int read;
@@ -562,7 +564,19 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void logout() {
+        // Sign out dari Firebase
         FirebaseAuth.getInstance().signOut();
+
+        // Sign out dari Google agar pilihan akun muncul lagi
+        com.google.android.gms.auth.api.signin.GoogleSignInOptions gso = new com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN).build();
+        com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso).signOut();
+
+        // Reset status sesi dan bersihkan cache
+        com.bagus.toko_baju_uas.api.ApiClient.isSessionActive = false;
+        android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
+        sp.edit().remove("cached_user_role").apply();
+
+        // Kembali ke Login
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
