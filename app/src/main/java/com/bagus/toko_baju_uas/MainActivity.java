@@ -1,6 +1,9 @@
 package com.bagus.toko_baju_uas;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +30,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.security.MessageDigest;
 import java.util.Map;
 import java.util.Objects;
 
@@ -61,14 +65,8 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
 
-        // Mengambil Web Client ID secara dinamis atau fallback ke ID manual dari google-services.json
-        String webClientId = "610252703058-ml0jita58ja9lp5dtu5o4b7hhb4aicvi.apps.googleusercontent.com";
-        try {
-            int resId = getResources().getIdentifier("default_web_client_id", "string", getPackageName());
-            if (resId != 0) {
-                webClientId = getString(resId);
-            }
-        } catch (Exception ignored) {}
+        // Ambil Web Client ID yang digenerate dari google-services.json
+        String webClientId = getString(R.string.default_web_client_id);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(webClientId) 
@@ -125,7 +123,10 @@ public class MainActivity extends AppCompatActivity {
                 if (e.getStatusCode() == 10) {
                     new androidx.appcompat.app.AlertDialog.Builder(this)
                             .setTitle("Google Sign In Developer Mismatch")
-                            .setMessage("Gagal masuk dengan Google (Error 10: SHA-1 Mismatch).\n\nApakah Anda ingin masuk sebagai Akun Pengunjung Demo untuk testing?")
+                            .setMessage("Gagal masuk dengan Google (Error 10: SHA-1 Mismatch).\n\n" +
+                                    "Package: " + getPackageName() + "\n" +
+                                    "SHA-1 debug: " + getDebugSha1() + "\n\n" +
+                                    "Tambahkan SHA-1 ini ke Firebase Console untuk package tersebut, lalu download ulang google-services.json.")
                             .setPositiveButton("Masuk Demo", (dialog, which) -> {
                                 prosesLoginHybrid("pengunjung@luxethreads.com", "user123");
                             })
@@ -272,6 +273,43 @@ public class MainActivity extends AppCompatActivity {
         }
         startActivity(intent);
         finish();
+    }
+
+    private String getDebugSha1() {
+        try {
+            PackageInfo packageInfo;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES);
+                if (packageInfo.signingInfo != null && packageInfo.signingInfo.getApkContentsSigners().length > 0) {
+                    byte[] cert = packageInfo.signingInfo.getApkContentsSigners()[0].toByteArray();
+                    return sha1FromBytes(cert);
+                }
+            } else {
+                packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+                if (packageInfo.signatures != null && packageInfo.signatures.length > 0) {
+                    return sha1FromBytes(packageInfo.signatures[0].toByteArray());
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "unknown";
+    }
+
+    private String sha1FromBytes(byte[] certBytes) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] sha1 = digest.digest(certBytes);
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : sha1) {
+                hexString.append(String.format("%02X:", b));
+            }
+            if (hexString.length() > 0) {
+                hexString.setLength(hexString.length() - 1);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            return "unknown";
+        }
     }
 
     @Override
