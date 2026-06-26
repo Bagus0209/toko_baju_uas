@@ -102,9 +102,9 @@ Aplikasi membutuhkan koneksi ke IP laptop Anda agar bisa mengakses database.
 ---
 
 ## 👨‍💻 Kontribusi Kelompok
-*   **Project Lead**: [Nama Anda]
-*   **UI/UX**: [Nama Anggota]
-*   **Backend**: [Nama Anggota]
+*   **Project Lead**: [Irvan Agus Saputra]
+*   **UI/UX**: [Adha Adnan Febryan]
+*   **Backend**: [Bagus SUlistyo]
 
 ---
 *LuxeThreads - Elegance in every tap. Disusun untuk memenuhi UAS Pemrograman Mobile 2024.*
