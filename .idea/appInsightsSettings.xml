@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.MyTokoBaju" />
-                  <option name="mobileSdkAppId" value="1:456106637695:android:dbbfe70e6ed9072b09824a" />
-                  <option name="projectId" value="comexamplemyapplication-87ef7" />
-                  <option name="projectNumber" value="456106637695" />
+                  <option name="appId" value="com.bagus.toko_baju_uas" />
+                  <option name="mobileSdkAppId" value="1:610252703058:android:8c2711c6b99c0d0d02268b" />
+                  <option name="projectId" value="toko-baju-5323c" />
+                  <option name="projectNumber" value="610252703058" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

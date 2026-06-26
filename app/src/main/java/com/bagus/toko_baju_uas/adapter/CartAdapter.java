@@ -95,21 +95,24 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().isStatus()) {
                         int currentQty = item.getJumlah();
-                        int newQty = action.equals("increase") ? currentQty + 1 : currentQty - 1;
+                        int newQty = action.equals("increase") ? currentQty + 1 : Math.max(1, currentQty - 1);
+                        
                         item.setJumlah(newQty);
                         holder.tvCartQty.setText(String.valueOf(newQty));
                         if (listener != null) listener.onCartChanged();
                     } else {
-                        android.widget.Toast.makeText(context, response.body().getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                        // Tampilkan pesan error ASLI dari server
+                        String serverMsg = response.body().getMessage();
+                        android.widget.Toast.makeText(context, "Server: " + serverMsg, android.widget.Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    android.widget.Toast.makeText(context, "Gagal memperbarui jumlah", android.widget.Toast.LENGTH_SHORT).show();
+                    android.widget.Toast.makeText(context, "Error HTTP: " + response.code(), android.widget.Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                android.widget.Toast.makeText(context, "Koneksi gagal: " + t.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                android.widget.Toast.makeText(context, "Masalah koneksi: " + t.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -122,16 +125,25 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             @Override
             public void onResponse(@NonNull Call<BaseResponse> call, @NonNull Response<BaseResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isStatus()) {
+                    // Hapus dari list lokal dan animasi UI
                     if (position < cartList.size()) {
                         cartList.remove(position);
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, cartList.size());
+                        
+                        // Hitung ulang total harga
                         if (listener != null) listener.onCartChanged();
+                        
+                        android.widget.Toast.makeText(context, "Item dihapus dari keranjang", android.widget.Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    android.widget.Toast.makeText(context, "Gagal menghapus item dari server", android.widget.Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
-            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {}
+            public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
+                android.widget.Toast.makeText(context, "Koneksi gagal saat menghapus", android.widget.Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

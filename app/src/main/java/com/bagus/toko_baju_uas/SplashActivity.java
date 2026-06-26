@@ -27,12 +27,6 @@ public class SplashActivity extends AppCompatActivity {
             androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         }
 
-        // Initialize Server IP from preferences
-        String savedIp = sp.getString("server_ip", "");
-        if (!savedIp.isEmpty()) {
-            com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP = savedIp;
-        }
-
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity_splash);
 

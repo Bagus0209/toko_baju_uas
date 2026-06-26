@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
@@ -46,6 +47,14 @@ public class AccountActivity extends AppCompatActivity {
         TextView tvName = findViewById(R.id.tvAccountName);
         TextView tvEmail = findViewById(R.id.tvAccountEmail);
         ivProfilePicture = findViewById(R.id.ivProfilePicture);
+        ImageButton btnBack = findViewById(R.id.btnBack);
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
+                AnimationUtil.animateButtonClick(v);
+                finish();
+            });
+        }
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 

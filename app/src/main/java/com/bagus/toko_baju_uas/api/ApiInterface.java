@@ -124,6 +124,12 @@ public interface ApiInterface {
     Call<com.bagus.toko_baju_uas.model.UsersResponse> getAdminCustomers();
 
     @FormUrlEncoded
+    @POST("admin_service.php?action=delete_customer")
+    Call<BaseResponse> deleteCustomer(
+            @Field("uid_firebase") String uid
+    );
+
+    @FormUrlEncoded
     @POST("sync_user.php")
     Call<BaseResponse> syncUser(
             @Field("uid_firebase") String uid,

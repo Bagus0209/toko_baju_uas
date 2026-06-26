@@ -106,6 +106,8 @@ public class OnboardingActivity extends AppCompatActivity {
 
     private void goToMain(String action) {
         Intent intent = new Intent(OnboardingActivity.this, PengunjungActivity.class);
+        // Pastikan tidak ada penumpukan Activity
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         if ("complete".equals(action)) intent.putExtra("start_tour", true);
         startActivity(intent);
         finish();

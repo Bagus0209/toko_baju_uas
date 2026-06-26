@@ -1,6 +1,8 @@
 package com.bagus.toko_baju_uas;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +50,12 @@ public class RegisterActivity extends AppCompatActivity {
         rgRole = findViewById(R.id.rgRole);
         MaterialButton btnSignUp = findViewById(R.id.btnSignUp);
         TextView tvSignIn = findViewById(R.id.tvSignIn);
+        ImageButton btnBack = findViewById(R.id.btnBack);
+
+        btnBack.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            finish();
+        });
 
         btnSignUp.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);
@@ -141,8 +149,32 @@ public class RegisterActivity extends AppCompatActivity {
         mFirestore.collection("users").document(uid).set(userMap)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(RegisterActivity.this, "Registrasi Berhasil sebagai " + role, Toast.LENGTH_SHORT).show();
-                    finish();
+                    redirectToDashboard(role);
                 })
                 .addOnFailureListener(e -> Toast.makeText(RegisterActivity.this, "Firestore Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void redirectToDashboard(String role) {
+        // Tandai sesi sebagai aktif karena registrasi berhasil (otomatis login)
+        com.bagus.toko_baju_uas.api.ApiClient.isSessionActive = true;
+
+        String finalRole = (role != null && !role.isEmpty()) ? role.toLowerCase().trim() : "pengunjung";
+        
+        // Simpan ke SharedPreferences
+        android.content.SharedPreferences sp = getSharedPreferences("app_settings", MODE_PRIVATE);
+        sp.edit().putString("cached_user_role", finalRole).apply();
+        
+        // Sinkronisasi User ke MySQL melalui Util (Safety Sync)
+        com.bagus.toko_baju_uas.util.UserSyncUtil.syncUser(this, finalRole);
+        
+        Intent intent;
+        if ("admin".equals(finalRole)) {
+            intent = new Intent(this, AdminActivity.class);
+        } else {
+            intent = new Intent(this, PengunjungActivity.class);
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

@@ -104,14 +104,21 @@ public class BajuAdminAdapter extends RecyclerView.Adapter<BajuAdminAdapter.View
                                     Toast.makeText(context, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                                     listBaju.remove(currentPosition);
                                     notifyItemRemoved(currentPosition);
+                                    notifyItemRangeChanged(currentPosition, listBaju.size());
                                 } else {
-                                    Toast.makeText(context, context.getString(R.string.delete_failed), Toast.LENGTH_SHORT).show();
+                                    String errorMsg = response.body() != null ? response.body().getMessage() : "Gagal hapus (Server Error)";
+                                    Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show();
                                 }
                             }
 
                             @Override
                             public void onFailure(@NonNull Call<BaseResponse> call, @NonNull Throwable t) {
-                                Toast.makeText(context, context.getString(R.string.error_format, t.getMessage()), Toast.LENGTH_SHORT).show();
+                                // Tampilkan pesan yang lebih bersahabat untuk parsing error
+                                if (t instanceof com.google.gson.JsonSyntaxException) {
+                                    Toast.makeText(context, "Server mengirim format data salah. Cek file PHP Anda!", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(context, "Koneksi Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     })

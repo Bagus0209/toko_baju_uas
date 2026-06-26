@@ -3,6 +3,7 @@ package com.bagus.toko_baju_uas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -42,6 +43,12 @@ public class EditProdukActivity extends AppCompatActivity {
         etEditStok = findViewById(R.id.etEditStok);
         etEditGambar = findViewById(R.id.etEditGambar);
         MaterialButton btnSimpanPerubahan = findViewById(R.id.btnSimpanPerubahan);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            finish();
+        });
 
         com.google.android.material.card.MaterialCardView cardPilihGambar = findViewById(R.id.cardEditPilihGambar);
         ivPreviewGambar = findViewById(R.id.ivEditPreviewGambar);

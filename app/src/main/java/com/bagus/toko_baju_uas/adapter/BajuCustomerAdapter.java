@@ -58,21 +58,13 @@ public class BajuCustomerAdapter extends RecyclerView.Adapter<BajuCustomerAdapte
         holder.tvProductPrice.setText(formatRupiah.format(baju.getHarga()));
 
         // Load image using Glide (URL logic is in BajuModel)
+        String imageUrl = baju.getGambar();
+        android.util.Log.d("IMAGE_LOAD", "Loading URL: " + imageUrl);
+        
         Glide.with(context)
-                .load(baju.getGambar())
+                .load(imageUrl)
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .error(android.R.drawable.ic_menu_gallery)
-                .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@androidx.annotation.Nullable com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
-                        // Untuk debugging: jika gambar tidak tampil, cek Logcat dengan filter "Glide"
-                        return false;
-                    }
-                    @Override
-                    public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                        return false;
-                    }
-                })
                 .into(holder.ivProductImage);
 
         // Add action button logic

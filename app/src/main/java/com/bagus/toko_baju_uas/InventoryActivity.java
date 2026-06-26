@@ -44,11 +44,17 @@ public class InventoryActivity extends AppCompatActivity {
         rvBajuAdmin = findViewById(R.id.rvBajuAdmin);
         MaterialButton btnTambahProduk = findViewById(R.id.btnTambahProduk);
         ImageButton btnMenu = findViewById(R.id.btnMenu);
+        ImageButton btnBack = findViewById(R.id.btnBack);
         drawerLayout = findViewById(R.id.drawerLayout);
 
         rvBajuAdmin.setLayoutManager(new LinearLayoutManager(this));
         
         fetchDataBarang();
+
+        btnBack.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            finish();
+        });
 
         btnTambahProduk.setOnClickListener(v -> {
             AnimationUtil.animateButtonClick(v);

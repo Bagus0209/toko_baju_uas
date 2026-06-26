@@ -50,6 +50,7 @@ public class PengunjungActivity extends AppCompatActivity {
     private BajuCustomerAdapter adapter;
     private List<BajuModel> allProducts = new ArrayList<>();
     private final List<BajuModel> filteredProducts = new ArrayList<>();
+    private boolean isTourRunning = false; // Flag pencegah penumpukan tour
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,9 +129,9 @@ public class PengunjungActivity extends AppCompatActivity {
         api.getAdminCustomers().enqueue(new Callback<UsersResponse>() {
             @Override
             public void onResponse(@NonNull Call<UsersResponse> call, @NonNull Response<UsersResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     for (UserModel u : response.body().getData()) {
-                        if (u.getEmail().equals(user.getEmail())) {
+                        if (u.getEmail() != null && u.getEmail().equals(user.getEmail())) {
                             processOnboardingLogic(u);
                             break;
                         }
@@ -249,6 +250,8 @@ public class PengunjungActivity extends AppCompatActivity {
     }
 
     private void startProductTour() {
+        if (isTourRunning) return; // Jangan jalankan jika sudah jalan
+        
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
         if (nav == null) return;
 
@@ -260,11 +263,9 @@ public class PengunjungActivity extends AppCompatActivity {
         View profile = nav.findViewById(R.id.nav_profile);
 
         // Jika view belum ter-inflate (jarang terjadi di onCreate), tour dibatalkan agar tidak crash
-        if (shop == null) {
-            Toast.makeText(this, "Silakan coba lagi dalam beberapa saat", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (shop == null) return;
 
+        isTourRunning = true; // Tandai tour sedang berjalan
         new TapTargetSequence(this)
                 .targets(
                     TapTarget.forView(shop, "Katalog Produk", "Lihat semua koleksi fashion mewah kami di sini.")
@@ -292,6 +293,7 @@ public class PengunjungActivity extends AppCompatActivity {
                 .listener(new TapTargetSequence.Listener() {
                     @Override
                     public void onSequenceFinish() {
+                        isTourRunning = false;
                         Toast.makeText(PengunjungActivity.this, "Tur selesai! Selamat berbelanja.", Toast.LENGTH_SHORT).show();
                         updateOnboardingStatusOnServer("complete");
                     }
@@ -299,6 +301,7 @@ public class PengunjungActivity extends AppCompatActivity {
                     public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {}
                     @Override
                     public void onSequenceCanceled(TapTarget lastTarget) {
+                        isTourRunning = false;
                         updateOnboardingStatusOnServer("skip");
                     }
                 })

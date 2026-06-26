@@ -198,8 +198,12 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
-                                // MySQL failed, show original Firebase login error.
-                                Toast.makeText(MainActivity.this, "Login Gagal: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                                // Diagnostik detail agar Anda tahu IP mana yang salah
+                                String currentIp = com.bagus.toko_baju_uas.api.ApiClient.IP_LAPTOP;
+                                String errorType = (t instanceof java.net.ConnectException) ? "Server Mati di " + currentIp : 
+                                                 (t instanceof java.net.SocketTimeoutException) ? "Timeout/Firewall di " + currentIp : "Error: " + t.getMessage();
+                                
+                                Toast.makeText(MainActivity.this, "Koneksi Gagal: " + errorType, Toast.LENGTH_LONG).show();
                             }
                         });
                     }

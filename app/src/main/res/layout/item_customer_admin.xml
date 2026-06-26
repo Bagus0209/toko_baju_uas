@@ -81,6 +81,17 @@
             android:gravity="end"
             android:orientation="vertical">
 
+            <ImageButton
+                android:id="@+id/btnDeleteCustomer"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_cancel"
+                app:tint="#EF4444" />
+
             <TextView
                 android:id="@+id/tvRoleBadge"
                 android:layout_width="wrap_content"
@@ -92,14 +103,6 @@
                 android:textColor="@color/luxe_black"
                 android:textSize="10sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Active"
-                android:textColor="#10B981"
-                android:textSize="10sp" />
         </LinearLayout>
 
     </LinearLayout>

@@ -3,6 +3,7 @@ package com.bagus.toko_baju_uas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -45,6 +46,12 @@ public class TambahProdukActivity extends AppCompatActivity {
         com.google.android.material.card.MaterialCardView cardPilihGambar = findViewById(R.id.cardPilihGambar);
         ivPreviewGambar = findViewById(R.id.ivPreviewGambar);
         layoutPlaceholder = findViewById(R.id.layoutPlaceholder);
+        ImageButton btnBack = findViewById(R.id.btnBack);
+
+        btnBack.setOnClickListener(v -> {
+            AnimationUtil.animateButtonClick(v);
+            finish();
+        });
 
         // Register Image Picker contract
         pickImageLauncher = registerForActivityResult(
@@ -75,13 +82,15 @@ public class TambahProdukActivity extends AppCompatActivity {
             String stokStr = etStok.getText().toString().trim();
 
             if (nama.isEmpty() || hargaStr.isEmpty() || stokStr.isEmpty()) {
-                Toast.makeText(this, "Nama, Harga, and Stok wajib diisi!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Nama, Harga, dan Stok wajib diisi!", Toast.LENGTH_SHORT).show();
             } else {
-                int harga = Integer.parseInt(hargaStr);
-                int stok = Integer.parseInt(stokStr);
-
-                // Call upload image and save
-                uploadImageAndSave(nama, harga, stok);
+                try {
+                    int harga = Integer.parseInt(hargaStr);
+                    int stok = Integer.parseInt(stokStr);
+                    uploadImageAndSave(nama, harga, stok);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Harga dan Stok harus berupa angka!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
